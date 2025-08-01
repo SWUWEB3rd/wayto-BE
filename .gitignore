@@ -1,0 +1,104 @@
+# 의존성
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# 런타임 데이터
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# 커버리지 디렉토리
+lib-cov
+coverage/
+*.lcov
+.nyc_output
+
+# 환경 변수 파일
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 로그 파일
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 런타임 데이터
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# 에디터 및 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 생성 파일
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 빌드 및 배포
+dist/
+build/
+out/
+
+# 테스트
+.nyc_output
+coverage
+
+# 데이터베이스
+*.sqlite
+*.db
+
+# 임시 파일
+*.tmp
+*.temp
+
+# PM2
+.pm2
+
+# Docker
+.dockerignore
+
+# 프로젝트 특화
+uploads/
+public/uploads/
+
+# 문서 자동 생성 파일 (선택사항)
+docs/swagger.json
+docs/index.html
+docs/postman-collection.json
+
+# 백업 파일
+*.bak
+*.backup
+
+# 캐시
+.cache/
+.parcel-cache/
+
+# SSL 인증서
+*.pem
+*.key
+*.crt
+
+# 개발용 시드 데이터
+seed-data/
+test-data/
