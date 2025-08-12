@@ -365,28 +365,6 @@ const deleteAccount = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    사용자 검색
- * @route   GET /api/users/search
- * @access  Private
- */
-const searchUsers = asyncHandler(async (req, res) => {
-  const { q } = req.query;
-
-  if (!q) {
-    return res.status(400).json({
-      error: 'Search query required',
-      message: '검색어를 입력해주세요.',
-    });
-  }
-
-  const users = await User.searchByKeyword(q).limit(10);
-
-  res.json({
-    users,
-  });
-});
-
 // 추가 컨트롤러들
 const sendIdPwVerification = asyncHandler(async (req, res) => {
   const { phone, type } = req.body;
