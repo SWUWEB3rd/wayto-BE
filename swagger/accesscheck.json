@@ -1,0 +1,36 @@
+{
+  "paths": {
+    "/accesscheck": {
+      "post": {
+        "summary": "비회원 접근 제한 확인",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": { "userToken": "abc123", "targetPath": "/mypage" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "접근 권한 확인 결과",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "canAccessTrue": {
+                    "summary": "접근 가능",
+                    "value": { "canAccess": true, "redirectPath": null, "message": null }
+                  },
+                  "canAccessFalse": {
+                    "summary": "접근 불가",
+                    "value": { "canAccess": false, "redirectPath": "/login", "message": "로그인이 필요합니다." }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

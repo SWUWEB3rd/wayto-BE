@@ -1,0 +1,26 @@
+{
+  "paths": {
+    "/errorpage": {
+      "get": {
+        "summary": "404 페이지 처리",
+        "parameters": [
+          { "name": "path", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "404": {
+            "description": "요청한 페이지를 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "요청하신 페이지를 찾을 수 없습니다.",
+                  "homeButton": true,
+                  "backButton": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

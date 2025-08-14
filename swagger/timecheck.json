@@ -1,0 +1,33 @@
+{
+  "paths": {
+    "/timecheck": {
+      "post": {
+        "summary": "시간 응답 저장",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": { "message": "응답이 저장되었습니다." }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "응답 저장 성공",
+            "content": {
+              "application/json": {
+                "example": {
+                  "userId": 3,
+                  "availableSlots": [
+                    { "date": "2025-07-11", "startTime": "09:00", "endTime": "10:00" },
+                    { "date": "2025-07-12", "startTime": "14:00", "endTime": "15:00" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

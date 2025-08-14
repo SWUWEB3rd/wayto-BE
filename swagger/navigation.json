@@ -1,0 +1,26 @@
+{
+  "paths": {
+    "/navigation": {
+      "get": {
+        "summary": "여러 페이지 구성 정보 조회",
+        "responses": {
+          "200": {
+            "description": "페이지 목록 반환",
+            "content": {
+              "application/json": {
+                "example": {
+                  "routes": [
+                    { "name": "홈", "path": "/", "requiresLogin": false },
+                    { "name": "내 캘린더", "path": "/mycalendar", "requiresLogin": true },
+                    { "name": "팀", "path": "/team", "requiresLogin": true },
+                    { "name": "마이페이지", "path": "/mypage", "requiresLogin": true }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
