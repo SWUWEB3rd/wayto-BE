@@ -1,4 +1,4 @@
-const Inquiry = require('../models/Inquiry');
+const { Inquiry } = require('../models');
 
 //문의작성
 exports.createInquiry = async (req, res) => {

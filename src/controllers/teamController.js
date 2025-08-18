@@ -1,5 +1,5 @@
-const Team = require('../models/Team');
-const User = require('../models/User');
+const { Team, User } = require('../models');
+
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 /**
