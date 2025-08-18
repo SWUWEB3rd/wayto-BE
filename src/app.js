@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
-const connectDB = require('./config/database');
+const { connectDB } = require('./config/database');
 const { specs, swaggerUi } = require('./config/swagger');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
