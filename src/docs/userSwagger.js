@@ -507,72 +507,6 @@
 
 /**
  * @swagger
- * /api/users/search:
- *   get:
- *     summary: 사용자 검색
- *     description: 팀에 추가할 사용자를 검색합니다. (팀 관리용)
- *     tags: [사용자 관리 (User Management)]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: q
- *         required: true
- *         schema:
- *           type: string
- *           minLength: 2
- *         description: 검색어 (이름 또는 이메일)
- *         example: "홍길동"
- *     responses:
- *       200:
- *         description: 검색 결과
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 users:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                         example: "64f1b2c3d4e5f6789abcdef0"
- *                       name:
- *                         type: string
- *                         example: "홍길동"
- *                       email:
- *                         type: string
- *                         example: "hong@example.com"
- *             example:
- *               users: [
- *                 {
- *                   "_id": "64f1b2c3d4e5f6789abcdef0",
- *                   "name": "홍길동",
- *                   "email": "hong@example.com"
- *                 },
- *                 {
- *                   "_id": "64f1b2c3d4e5f6789abcdef1",
- *                   "name": "홍철수",
- *                   "email": "hongcs@example.com"
- *                 }
- *               ]
- *       400:
- *         description: 잘못된 요청
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               error: "Search query required"
- *               message: "검색어를 입력해주세요."
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-
-/**
- * @swagger
  * /api/users/idpw-sendnum:
  *   post:
  *     summary: 아이디/비밀번호 찾기용 인증번호 전송
@@ -719,4 +653,142 @@
  *             example:
  *               error: "Invalid or expired token"
  *               message: "유효하지 않거나 만료된 토큰입니다."
+ */
+
+//비밀번호 변경
+/**
+ * @swagger
+ * /api/users/me/password:
+ *   post:
+ *     summary: 비밀번호 변경
+ *     description: 현재 비밀번호 확인 후 새 비밀번호로 변경합니다.
+ *     tags: [사용자 관리 (User Management)]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PasswordChangeRequest'
+ *           example:
+ *             currentPassword: "OldPass123!@#"
+ *             newPassword: "NewPass123!@#"
+ *     responses:
+ *       200:
+ *         description: 변경 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "비밀번호가 변경되었습니다." }
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       409:
+ *         description: 현재 비밀번호 불일치
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "PasswordMismatch"
+ *               message: "현재 비밀번호가 일치하지 않습니다."
+ */
+
+//이메일 변경(요청-> 코드 검증)
+/**
+ * @swagger
+ * /api/users/email-change/request:
+ *   post:
+ *     summary: 이메일 변경 요청(코드 발송)
+ *     description: 새 이메일과 현재 비밀번호를 확인하고 인증 코드를 새 이메일로 발송합니다.
+ *     tags: [사용자 관리 (User Management)]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EmailChangeRequest'
+ *           example:
+ *             newEmail: "new@example.com"
+ *             currentPassword: "MyPass123!@#"
+ *     responses:
+ *       200:
+ *         description: 인증코드 발송 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "인증코드가 새 이메일로 발송되었습니다." }
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       409:
+ *         description: 이미 사용 중인 이메일
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "EmailInUse"
+ *               message: "이미 사용 중인 이메일입니다."
+ *       429:
+ *         description: 요청 과다(레이트 리밋)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "TooManyRequests"
+ *               message: "요청이 너무 빈번합니다. 잠시 후 다시 시도해주세요."
+ */
+
+/**
+ * @swagger
+ * /api/users/email-change/verify:
+ *   post:
+ *     summary: 이메일 변경 인증(코드 검증)
+ *     description: 발송된 인증 코드를 검증하고 실제 이메일을 변경합니다.
+ *     tags: [사용자 관리 (User Management)]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EmailVerifyRequest'
+ *           example:
+ *             newEmail: "new@example.com"
+ *             code: "123456"
+ *     responses:
+ *       200:
+ *         description: 이메일 변경 완료
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "이메일이 변경되었습니다." }
+ *                 user: { $ref: '#/components/schemas/User' }
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       410:
+ *         description: 인증 코드 만료
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "VerificationExpired"
+ *               message: "인증 코드가 만료되었습니다."
  */

@@ -14,6 +14,9 @@ router.get('/search', authenticate, teamController.searchUsers);
 // 사용자 팀에 추가
 router.post('/:team_id/members', authenticate, teamController.addMemberToTeam);
 
+// 팀원 목록 조회
+router.get('/:team_id/members', authenticate, teamController.getTeamMembers);
+
 // 팀 상세 조회
 router.get('/:team_id', authenticate, teamController.getTeamDetail);
 
