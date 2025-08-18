@@ -25,6 +25,8 @@ coverage/
 .env.test.local
 .env.production.local
 
+.env.*.local
+
 # 로그 파일
 logs
 *.log
