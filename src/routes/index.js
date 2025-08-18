@@ -2,12 +2,12 @@ const express = require('express');
 
 const userRoutes = require('./userRoutes');
 const teamRoutes = require('./teamRoutes');
-const meetingRoutes = require('./meetingRoutes');
+// const meetingRoutes = require('./meetingRoutes');
 const minuteRoutes = require('./minuteRoutes');
 const inquiryRoutes = require('./inquiryRoutes');
-const calendarRoutes = require('./calendarRoutes');
-const whentomeetRoutes = require('./whentomeetRoutes');
-const navigationRoutes = require('./navigationRoutes');
+// const calendarRoutes = require('./calendarRoutes');
+// const whentomeetRoutes = require('./whentomeetRoutes');
+// const navigationRoutes = require('./navigationRoutes');
 
 const router = express.Router();
 
@@ -19,12 +19,12 @@ router.get('/', (req, res) => {
     endpoints: {
       users: '/api/users',
       teams: '/api/teams',
-      meetings: '/api/meetings',
+      // meetings: '/api/meetings',
       minutes: '/api/minutes',
       inquiries: '/api/inquiries',
-      calendar: '/api/calendar',
-      whentomeet: '/api/whentomeet',
-      navigation: '/api/navigation',
+      // calendar: '/api/calendar',
+      // whentomeet: '/api/whentomeet',
+      // navigation: '/api/navigation',
     },
   });
 });
@@ -32,12 +32,12 @@ router.get('/', (req, res) => {
 // 라우트 연결
 router.use('/users', userRoutes);
 router.use('/teams', teamRoutes);
-router.use('/meetings', meetingRoutes);
+// router.use('/meetings', meetingRoutes);
 router.use('/minutes', minuteRoutes);
 router.use('/inquiries', inquiryRoutes);
-router.use('/calendar', calendarRoutes);
-router.use('/whentomeet', whentomeetRoutes);
-router.use('/navigation', navigationRoutes);
+// router.use('/calendar', calendarRoutes);
+// router.use('/whentomeet', whentomeetRoutes);
+// router.use('/navigation', navigationRoutes);
 
 // 에러 및 접근성 관련 라우트
 router.get('/error/404', (req, res) => {
