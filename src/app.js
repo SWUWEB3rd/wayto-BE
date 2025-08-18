@@ -60,42 +60,41 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger UI 설정 (개발 환경에서만)
-if (process.env.NODE_ENV !== 'production') {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-    explorer: true,
-    customCss: `
-      .swagger-ui .topbar { display: none }
-      .swagger-ui .info .title { color: #3b4151; font-size: 2em; }
-      .swagger-ui .scheme-container { background: #fafafa; padding: 15px; }
-    `,
-    customSiteTitle: "회의관리플랫폼 API 문서",
-    swaggerOptions: {
-      persistAuthorization: true,
-      displayRequestDuration: true,
-      filter: true,
-      showExtensions: true,
-      showCommonExtensions: true,
-      docExpansion: 'none',
-      defaultModelsExpandDepth: 2,
-      defaultModelExpandDepth: 2,
-      tryItOutEnabled: true,
-      requestInterceptor: (request) => {
-        // 개발 환경에서 CORS 이슈 방지
-        console.log('API Request:', request.method, request.url);
-        return request;
-      }
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info .title { color: #3b4151; font-size: 2em; }
+    .swagger-ui .scheme-container { background: #fafafa; padding: 15px; }
+  `,
+  customSiteTitle: "회의관리플랫폼 API 문서",
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    showExtensions: true,
+    showCommonExtensions: true,
+    docExpansion: 'none',
+    defaultModelsExpandDepth: 2,
+    defaultModelExpandDepth: 2,
+    tryItOutEnabled: true,
+    requestInterceptor: (request) => {
+      // 개발 환경에서 CORS 이슈 방지
+      console.log('API Request:', request.method, request.url);
+      return request;
     }
-  }));
+  }
+}));
 
-  // Swagger JSON 엔드포인트
-  app.get('/api-docs.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(specs);
-  });
+// Swagger JSON 엔드포인트
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
 
-  console.log(`📚 API Documentation available at http://localhost:${process.env.PORT || 3000}/api-docs`);
-}
+console.log(`📚 API Documentation available at http://localhost:${process.env.PORT || 3000}/api-docs`);
+
 
 // 헬스 체크 (루트 경로도 추가)
 app.get('/', (req, res) => {
@@ -103,7 +102,7 @@ app.get('/', (req, res) => {
     name: '회의관리플랫폼 API',
     version: '1.0.0',
     status: 'running',
-    docs: process.env.NODE_ENV !== 'production' ? '/api-docs' : 'disabled',
+    docs: '/api-docs',
   });
 });
 
