@@ -45,6 +45,12 @@ const getDatabaseConfig = () => {
       port: process.env.DB_PORT,
       dialect: 'postgres',
       logging: env === 'development' ? console.log : false,
+      dialectOptions: {
+        ssl: env === 'production' ? {
+          require: true,
+          rejectUnauthorized: false
+        } : false
+      },
       pool: {
         max: 5,
         min: 0,
