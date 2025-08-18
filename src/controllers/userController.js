@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const User = require('../models/User');
+const { User } = require('../models');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 const emailService = require('../services/emailService');
 
@@ -431,6 +431,14 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   res.json({
     message: '비밀번호가 재설정되었습니다.',
+  });
+});
+
+const searchUsers = asyncHandler(async (req, res) => {
+  // 사용자 검색 로직 (필요하면 구현)
+  res.json({
+    message: 'User search functionality',
+    users: []
   });
 });
 

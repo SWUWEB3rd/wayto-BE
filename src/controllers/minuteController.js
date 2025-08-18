@@ -1,5 +1,5 @@
-const Minute = require('../models/Minute');
-// const Meeting = require('../models/Meeting');
+const { Minute } = require('../models');
+
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 /**
@@ -19,7 +19,7 @@ const createMinute = asyncHandler(async (req, res) => {
 //     });
 //   }
 
-  if (!meeting_id) {
+  if (!meetingId) {
     return res.status(400).json({
       error: 'Meeting ID required',
       message: '회의 ID는 필수입니다.',
