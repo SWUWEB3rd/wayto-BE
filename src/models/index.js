@@ -1,4 +1,4 @@
-// src/models/index.js - PostgreSQL 모든 모델과 관계 정의
+// src/models/index.js - PostgreSQL 모델과 관계 정의
 const { Sequelize, DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 const bcrypt = require('bcryptjs');
@@ -11,15 +11,6 @@ const User = sequelize.define('User', {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
-  },
-  username: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    unique: true,
-    validate: {
-      len: [3, 50],
-      isAlphanumeric: true
-    }
   },
   email: {
     type: DataTypes.STRING(255),
@@ -36,15 +27,13 @@ const User = sequelize.define('User', {
       len: [6, 255]
     }
   },
-  fullName: {
+  name: {
     type: DataTypes.STRING(100),
-    allowNull: true,
-    field: 'full_name'
+    allowNull: false
   },
-  phoneNumber: {
+  phone: {
     type: DataTypes.STRING(20),
-    allowNull: true,
-    field: 'phone_number'
+    allowNull: true
   },
   profileImage: {
     type: DataTypes.STRING(500),
@@ -60,6 +49,16 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: true,
     field: 'last_login_at'
+  },
+  passwordResetToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    field: 'password_reset_token'
+  },
+  passwordResetExpires: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'password_reset_expires'
   }
 }, {
   tableName: 'users',
@@ -569,97 +568,141 @@ const RefreshToken = sequelize.define('RefreshToken', {
   updatedAt: false
 });
 
+// 13. Inquiry 모델 (1:1 문의)
+const Inquiry = sequelize.define('Inquiry', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'user_id'
+  },
+  category: {
+    type: DataTypes.ENUM('technical', 'account', 'feature', 'bug', 'other'),
+    allowNull: false
+  },
+  title: {
+    type: DataTypes.STRING(200),
+    allowNull: false
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.ENUM('pending', 'in_progress', 'resolved', 'closed'),
+    defaultValue: 'pending'
+  },
+  adminResponse: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'admin_response'
+  },
+  respondedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'responded_at'
+  }
+}, {
+  tableName: 'inquiries',
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
+});
+
 // ===== 모델 관계 설정 =====
+let associationsInitialized = false;
+
 const initializeAssociations = () => {
-  // User 관계
-  User.hasMany(Team, { foreignKey: 'creatorId', as: 'createdTeams' });
-  User.hasMany(TeamMember, { foreignKey: 'userId' });
-  User.hasMany(Meeting, { foreignKey: 'organizerId', as: 'organizedMeetings' });
-  User.hasMany(MeetingAttendee, { foreignKey: 'userId' });
-  User.hasMany(Minutes, { foreignKey: 'authorId', as: 'writtenMinutes' });
-  User.hasMany(WhenToMeet, { foreignKey: 'creatorId', as: 'createdPolls' });
-  User.hasMany(WhenToMeetResponse, { foreignKey: 'userId' });
-  User.hasMany(Notification, { foreignKey: 'userId' });
-  User.hasOne(UserSettings, { foreignKey: 'userId' });
-  User.hasMany(RefreshToken, { foreignKey: 'userId' });
+  if (associationsInitialized) {
+    return;
+  }
 
-  // Team 관계
-  Team.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
-  Team.hasMany(TeamMember, { foreignKey: 'teamId' });
-  Team.hasMany(Meeting, { foreignKey: 'teamId' });
-  Team.hasMany(WhenToMeet, { foreignKey: 'teamId' });
+  try {
+    // User 관계
+    User.hasMany(Team, { foreignKey: 'creatorId', as: 'createdTeams' });
+    User.hasMany(Meeting, { foreignKey: 'organizerId', as: 'organizedMeetings' });
+    User.hasMany(Minutes, { foreignKey: 'authorId', as: 'writtenMinutes' });
+    User.hasMany(WhenToMeet, { foreignKey: 'creatorId', as: 'createdPolls' });
+    User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
+    User.hasOne(UserSettings, { foreignKey: 'userId', as: 'settings' });
+    User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
+    User.hasMany(Inquiry, { foreignKey: 'userId', as: 'inquiries' });
 
-  // TeamMember 관계
-  TeamMember.belongsTo(User, { foreignKey: 'userId' });
-  TeamMember.belongsTo(Team, { foreignKey: 'teamId' });
+    // Team 관계
+    Team.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
+    Team.hasMany(Meeting, { foreignKey: 'teamId', as: 'meetings' });
+    Team.hasMany(WhenToMeet, { foreignKey: 'teamId', as: 'polls' });
 
-  // Meeting 관계
-  Meeting.belongsTo(Team, { foreignKey: 'teamId' });
-  Meeting.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
-  Meeting.hasMany(MeetingAttendee, { foreignKey: 'meetingId' });
-  Meeting.hasMany(Minutes, { foreignKey: 'meetingId' });
+    // Meeting 관계
+    Meeting.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
+    Meeting.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
+    Meeting.hasMany(Minutes, { foreignKey: 'meetingId', as: 'minutes' });
 
-  // MeetingAttendee 관계
-  MeetingAttendee.belongsTo(Meeting, { foreignKey: 'meetingId' });
-  MeetingAttendee.belongsTo(User, { foreignKey: 'userId' });
+    // Minutes 관계
+    Minutes.belongsTo(Meeting, { foreignKey: 'meetingId', as: 'meeting' });
+    Minutes.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
-  // Minutes 관계
-  Minutes.belongsTo(Meeting, { foreignKey: 'meetingId' });
-  Minutes.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+    // WhenToMeet 관계
+    WhenToMeet.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
+    WhenToMeet.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
+    WhenToMeet.hasMany(WhenToMeetSlot, { foreignKey: 'whentomeetId', as: 'slots' });
+    WhenToMeet.hasMany(WhenToMeetResponse, { foreignKey: 'whentomeetId', as: 'responses' });
 
-  // WhenToMeet 관계
-  WhenToMeet.belongsTo(Team, { foreignKey: 'teamId' });
-  WhenToMeet.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
-  WhenToMeet.hasMany(WhenToMeetSlot, { foreignKey: 'whentomeetId', as: 'slots' });
-  WhenToMeet.hasMany(WhenToMeetResponse, { foreignKey: 'whentomeetId', as: 'responses' });
+    // WhenToMeetSlot 관계
+    WhenToMeetSlot.belongsTo(WhenToMeet, { foreignKey: 'whentomeetId', as: 'poll' });
+    WhenToMeetSlot.hasMany(WhenToMeetResponse, { foreignKey: 'slotId', as: 'responses' });
 
-  // WhenToMeetSlot 관계
-  WhenToMeetSlot.belongsTo(WhenToMeet, { foreignKey: 'whentomeetId' });
-  WhenToMeetSlot.hasMany(WhenToMeetResponse, { foreignKey: 'slotId' });
+    // WhenToMeetResponse 관계
+    WhenToMeetResponse.belongsTo(WhenToMeet, { foreignKey: 'whentomeetId', as: 'poll' });
+    WhenToMeetResponse.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    WhenToMeetResponse.belongsTo(WhenToMeetSlot, { foreignKey: 'slotId', as: 'slot' });
 
-  // WhenToMeetResponse 관계
-  WhenToMeetResponse.belongsTo(WhenToMeet, { foreignKey: 'whentomeetId' });
-  WhenToMeetResponse.belongsTo(User, { foreignKey: 'userId' });
-  WhenToMeetResponse.belongsTo(WhenToMeetSlot, { foreignKey: 'slotId' });
+    // 기타 관계
+    Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    UserSettings.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    Inquiry.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-  // Notification 관계
-  Notification.belongsTo(User, { foreignKey: 'userId' });
+    // Many-to-Many 관계 (User <-> Team through TeamMember)
+    User.belongsToMany(Team, {
+      through: TeamMember,
+      foreignKey: 'userId',
+      otherKey: 'teamId',
+      as: 'teams'
+    });
 
-  // UserSettings 관계
-  UserSettings.belongsTo(User, { foreignKey: 'userId' });
+    Team.belongsToMany(User, {
+      through: TeamMember,
+      foreignKey: 'teamId',
+      otherKey: 'userId',
+      as: 'members'
+    });
 
-  // RefreshToken 관계
-  RefreshToken.belongsTo(User, { foreignKey: 'userId' });
+    // Many-to-Many 관계 (User <-> Meeting through MeetingAttendee)
+    User.belongsToMany(Meeting, {
+      through: MeetingAttendee,
+      foreignKey: 'userId',
+      otherKey: 'meetingId',
+      as: 'attendingMeetings'
+    });
 
-  // Many-to-Many 관계 (User <-> Team through TeamMember)
-  User.belongsToMany(Team, {
-    through: TeamMember,
-    foreignKey: 'userId',
-    otherKey: 'teamId',
-    as: 'teams'
-  });
+    Meeting.belongsToMany(User, {
+      through: MeetingAttendee,
+      foreignKey: 'meetingId',
+      otherKey: 'userId',
+      as: 'attendees'
+    });
 
-  Team.belongsToMany(User, {
-    through: TeamMember,
-    foreignKey: 'teamId',
-    otherKey: 'userId',
-    as: 'members'
-  });
-
-  // Many-to-Many 관계 (User <-> Meeting through MeetingAttendee)
-  User.belongsToMany(Meeting, {
-    through: MeetingAttendee,
-    foreignKey: 'userId',
-    otherKey: 'meetingId',
-    as: 'attendingMeetings'
-  });
-
-  Meeting.belongsToMany(User, {
-    through: MeetingAttendee,
-    foreignKey: 'meetingId',
-    otherKey: 'userId',
-    as: 'attendees'
-  });
+    associationsInitialized = true;
+    console.log('✅ 모델 관계 설정 완료');
+  } catch (error) {
+    console.error('❌ 모델 관계 설정 실패:', error);
+    throw error;
+  }
 };
 
 // ===== 인스턴스 메서드 추가 =====
@@ -670,8 +713,9 @@ User.beforeCreate(async (user) => {
     const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
     user.password = await bcrypt.hash(user.password, saltRounds);
   }
-  user.email = user.email.toLowerCase();
-  user.username = user.username.toLowerCase();
+  if (user.email) {
+    user.email = user.email.toLowerCase();
+  }
 });
 
 User.beforeUpdate(async (user) => {
@@ -682,35 +726,31 @@ User.beforeUpdate(async (user) => {
   if (user.changed('email')) {
     user.email = user.email.toLowerCase();
   }
-  if (user.changed('username')) {
-    user.username = user.username.toLowerCase();
-  }
 });
 
-User.prototype.validatePassword = async function(password) {
+User.prototype.comparePassword = async function(password) {
   return await bcrypt.compare(password, this.password);
 };
 
-User.prototype.toSafeObject = function() {
-  const { password, ...safeUser } = this.toJSON();
-  return safeUser;
+User.prototype.generatePasswordResetToken = function() {
+  const crypto = require('crypto');
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1시간
+
+  return resetToken;
 };
 
-User.prototype.updateLastLogin = async function() {
-  this.lastLoginAt = new Date();
-  await this.save();
+User.prototype.toSafeObject = function() {
+  const { password, passwordResetToken, passwordResetExpires, ...safeUser } = this.toJSON();
+  return safeUser;
 };
 
 // User 클래스 메서드
 User.findByEmail = async function(email) {
   return await this.findOne({
     where: { email: email.toLowerCase() }
-  });
-};
-
-User.findByUsername = async function(username) {
-  return await this.findOne({
-    where: { username: username.toLowerCase() }
   });
 };
 
@@ -748,14 +788,6 @@ RefreshToken.findValidToken = async function(token) {
   });
 };
 
-// Minutes 인스턴스 메서드 (PostgreSQL 전문 검색)
-Minutes.searchByContent = async function(keyword) {
-  return await this.findAll({
-    where: sequelize.literal(`to_tsvector('korean', content) @@ plainto_tsquery('korean', '${keyword}')`),
-    order: [['created_at', 'DESC']]
-  });
-};
-
 // ===== 데이터베이스 동기화 =====
 const syncDatabase = async (force = false) => {
   try {
@@ -781,10 +813,9 @@ const createInitialData = async () => {
   try {
     // 관리자 계정 생성
     const admin = await User.create({
-      username: 'admin',
       email: 'admin@wayto.com',
       password: 'Admin123!',
-      fullName: '시스템 관리자',
+      name: '시스템 관리자',
       isActive: true
     });
 
@@ -817,6 +848,7 @@ module.exports = {
   Notification,
   UserSettings,
   RefreshToken,
+  Inquiry,
   syncDatabase,
   initializeAssociations
 };
