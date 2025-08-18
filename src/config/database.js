@@ -101,7 +101,35 @@ const testConnection = async () => {
   }
 };
 
+/**
+ * 데이터베이스 연결 및 초기화
+ */
+const connectDB = async () => {
+  try {
+    // 1. 데이터베이스 연결 테스트
+    await testConnection();
+
+    // 2. 모델 초기화 (필요한 경우)
+    const { initializeAssociations, syncDatabase } = require('../models');
+
+    // 3. 모델 관계 설정
+    initializeAssociations();
+
+    // 4. 개발 환경에서만 테이블 동기화 (운영에서는 마이그레이션 사용)
+    if (process.env.NODE_ENV === 'development') {
+      await syncDatabase(false); // force: false로 기존 데이터 보존
+    }
+
+    console.log('✅ 데이터베이스 연결 및 초기화 완료');
+
+  } catch (error) {
+    console.error('❌ 데이터베이스 연결 실패:', error.message);
+    process.exit(1);
+  }
+};
+
 module.exports = {
   sequelize,
-  testConnection
+  testConnection,
+  connectDB
 };
