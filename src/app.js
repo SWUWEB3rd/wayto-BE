@@ -95,6 +95,12 @@ app.get('/api-docs.json', (req, res) => {
 
 console.log(`📚 API Documentation available at http://localhost:${process.env.PORT || 3000}/api-docs`);
 
+// 👇 추가: 대시 버전도 열어줌 (호환용)
+app.get('/api-docs-json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
+
 
 // 헬스 체크 (루트 경로도 추가)
 app.get('/', (req, res) => {
