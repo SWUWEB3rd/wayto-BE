@@ -62,6 +62,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  swaggerUrl: '/api-docs-json',
   explorer: true,
   customCss: `
     .swagger-ui .topbar { display: none }
