@@ -29,6 +29,7 @@ router.post('/reset-pw', userController.resetPassword);
 // 사용자 프로필 관리 (인증 필요)
 router.get('/me', authenticate, userController.getProfile);
 router.patch('/me', authenticate, userController.updateProfile);
+router.post('/me/verify-email', authenticate, userController.verifyEmailChange);
 router.delete('/me', authenticate, userController.deleteAccount);
 
 // 사용자 검색 (팀 관리용, 인증 필요)

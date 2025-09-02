@@ -312,7 +312,7 @@ const getProfile = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const updateProfile = asyncHandler(async (req, res) => {
-  const { name, phone, currentPassword, newPassword } = req.body;
+  const { name, phone, email, currentPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user.id).select('+password');
 
@@ -334,7 +334,26 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     user.password = newPassword;
   }
+  // 이메일 변경 요청 처리
+  if (email && email !== user.email) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        error: 'Email already exists',
+        message: '이미 가입된 이메일입니다.',
+      });
+    }
 
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    verificationCodes.set(`emailChange_${user._id}`, {
+      code: verificationCode,
+      email,
+      expires: Date.now() + 5 * 60 * 1000,
+    });
+
+    await emailService.sendVerificationEmail(email, verificationCode);
+  }
   // 다른 필드 업데이트
   if (name) user.name = name;
   if (phone) user.phone = phone;
@@ -351,6 +370,54 @@ const updateProfile = asyncHandler(async (req, res) => {
     },
   });
 });
+/**
+ * @desc    이메일 변경 인증
+ * @route   POST /api/users/me/verify-email
+ * @access  Private
+ */
+const verifyEmailChange = asyncHandler(async (req, res) => {
+  const { code } = req.body;
+  const key = `emailChange_${req.user.id}`;
+  const stored = verificationCodes.get(key);
+
+  if (!stored) {
+    return res.status(400).json({
+      error: 'Verification code not found',
+      message: '인증번호를 다시 요청해주세요.',
+    });
+  }
+
+  if (Date.now() > stored.expires) {
+    verificationCodes.delete(key);
+    return res.status(400).json({
+      error: 'Verification code expired',
+      message: '인증번호가 만료되었습니다.',
+    });
+  }
+
+  if (stored.code !== code) {
+    return res.status(400).json({
+      error: 'Invalid verification code',
+      message: '인증번호가 올바르지 않습니다.',
+    });
+  }
+
+  const user = await User.findById(req.user.id);
+  user.email = stored.email;
+  await user.save();
+
+  verificationCodes.delete(key);
+
+  res.json({
+    message: '이메일이 업데이트되었습니다.',
+    user: {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+    },
+  });
+});
 
 /**
  * @desc    회원 탈퇴
@@ -358,13 +425,38 @@ const updateProfile = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const deleteAccount = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(req.user.id, { isActive: false });
+ /* await User.findByIdAndUpdate(req.user.id, { isActive: false });
 
   res.json({
     message: '회원 탈퇴가 완료되었습니다.',
   });
-});
+});*/
+const transaction = await sequelize.transaction();
+  try {
+    const userId = req.user.id;
+        await User.update(
+      { isActive: false },
+      { where: { id: userId }, transaction }
+    );
 
+    await Team.update(
+      { isActive: false },
+      { where: { creatorId: userId }, transaction }
+    );
+
+    await Inquiry.destroy({ where: { userId }, transaction });
+    await Minutes.destroy({ where: { authorId: userId }, transaction });
+
+    await transaction.commit();
+
+    res.json({
+      message: '회원 탈퇴가 완료되었습니다.',
+    });
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+});
 // 추가 컨트롤러들
 const sendIdPwVerification = asyncHandler(async (req, res) => {
   const { phone, type } = req.body;
@@ -458,6 +550,7 @@ module.exports = {
   resetPassword,
   getProfile,
   updateProfile,
+  verifyEmailChange,
   deleteAccount,
   searchUsers,
 };
