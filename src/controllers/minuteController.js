@@ -27,6 +27,16 @@ const createMinute = asyncHandler(async (req, res) => {
   }
 
   const minute = await Minute.create({
+
+    // 수정 데이터
+    title,
+    attendees,
+    meetingDate,
+    location,
+    meetingLink,
+    content,
+
+    // TODO: 기존 데이터 (남길지 뺄지 결정)
     meeting: meetingId,
     authorId: req.user.id,
     title,
