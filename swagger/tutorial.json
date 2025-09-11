@@ -1,0 +1,29 @@
+{
+  "paths": {
+    "/tutorial": {
+      "get": {
+        "summary": "툴팁/도움말 제공",
+        "parameters": [
+          { "name": "userId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "사용자 맞춤 튜토리얼 제공",
+            "content": {
+              "application/json": {
+                "example": {
+                  "needTutorial": true,
+                  "steps": [
+                    "네비게이션 바 소개",
+                    "주요 기능 설명",
+                    "개인 설정 안내"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

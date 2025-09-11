@@ -1,0 +1,37 @@
+{
+  "paths": {
+    "/whentomeet": {
+      "post": {
+        "summary": "웬투밋 설문 생성",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "teamId": 1,
+                "title": "정기 회의 일정 조율",
+                "dateRange": { "startDate": "2025-08-20", "endDate": "2025-08-27" },
+                "timeRange": { "startTime": "09:00", "endTime": "18:00" },
+                "participants": [2, 3, 5]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "설문 생성 성공",
+            "content": {
+              "application/json": {
+                "example": { "id": 7, "message": "웬투밋 설문이 생성되었습니다." }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "웬투밋 설문 삭제",
+        "responses": { "200": { "description": "설문 삭제 완료" } }
+      }
+    }
+  }
+}

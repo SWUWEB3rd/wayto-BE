@@ -1,0 +1,41 @@
+{
+  "paths": {
+    "/summary": {
+      "get": {
+        "summary": "웬투밋 설문 요약 조회",
+        "parameters": [
+          {
+            "name": "whentomeetId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "example": 7 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "설문 요약 반환",
+            "content": {
+              "application/json": {
+                "example": {
+                  "whentomeetId": 7,
+                  "slots": [
+                    {
+                      "date": "2025-07-11",
+                      "startTime": "09:00",
+                      "endTime": "10:00",
+                      "respondentCount": 5,
+                      "respondents": [
+                        { "userId": 2, "name": "홍길동" },
+                        { "userId": 3, "name": "김철수" }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

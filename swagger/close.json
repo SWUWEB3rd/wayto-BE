@@ -1,0 +1,33 @@
+{
+  "paths": {
+    "/whentomeet/close": {
+      "patch": {
+        "summary": "웬투밋 설문 종료",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": { "example": {} }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "설문 종료 성공",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "웬투밋 설문이 종료되었습니다.",
+                  "finalSelectedSlot": {
+                    "date": "2025-07-11",
+                    "startTime": "09:00",
+                    "endTime": "10:00",
+                    "respondentCount": 5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
