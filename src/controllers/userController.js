@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { User } = require('../models');
+const { User, Team, TeamMember } = require('../models');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 const emailService = require('../services/emailService');
 
@@ -291,11 +291,18 @@ const findUserPassword = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).populate('teams', 'name description');
+  const user = await User.findByPk(req.user.id, {
+    include: [{
+      model: Team,
+      as: 'teams',
+      attributes: ['id', 'name', 'description'],
+      through: { attributes: [] }
+    }]
+  });
 
   res.json({
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -306,6 +313,28 @@ const getProfile = asyncHandler(async (req, res) => {
   });
 });
 
+// GET /api/users/me/teams/names
+const getMyTeamNames = asyncHandler(async (req, res) => {
+  // 내가 속한 팀 ID 목록
+  const memberships = await TeamMember.findAll({
+    where: { userId: req.user.id },
+    attributes: ['teamId'],
+  });
+
+  const teamIds = [...new Set(memberships.map(m => m.teamId))]; // 중복 제거
+  if (!teamIds.length) return res.json({ teamNames: [] });
+
+  // 팀 이름만 조회
+  const teams = await Team.findAll({
+    where: { id: teamIds },
+    attributes: ['name'],
+    order: [['name', 'ASC']],
+  });
+
+  const teamNames = teams.map(t => t.name);
+  return res.json({ teamNames });
+});
+
 /**
  * @desc    프로필 수정
  * @route   PATCH /api/users/me
@@ -313,9 +342,8 @@ const getProfile = asyncHandler(async (req, res) => {
  */
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, phone, email, currentPassword, newPassword } = req.body;
-
-  const user = await User.findById(req.user.id).select('+password');
-
+  const user = await User.findByPk(req.user.id, { attributes: { include: ['password'] } });
+  
   // 비밀번호 변경 시 현재 비밀번호 확인
   if (newPassword) {
     if (!currentPassword) {
@@ -336,7 +364,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   }
   // 이메일 변경 요청 처리
   if (email && email !== user.email) {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({
         error: 'Email already exists',
@@ -346,7 +374,7 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    verificationCodes.set(`emailChange_${user._id}`, {
+    verificationCodes.set(`emailChange_${user.id}`, {
       code: verificationCode,
       email,
       expires: Date.now() + 5 * 60 * 1000,
@@ -363,7 +391,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   res.json({
     message: '프로필이 업데이트되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -402,7 +430,7 @@ const verifyEmailChange = asyncHandler(async (req, res) => {
     });
   }
 
-  const user = await User.findById(req.user.id);
+  const user = await User.findByPk(req.user.id);
   user.email = stored.email;
   await user.save();
 
@@ -411,7 +439,7 @@ const verifyEmailChange = asyncHandler(async (req, res) => {
   res.json({
     message: '이메일이 업데이트되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -431,29 +459,22 @@ const deleteAccount = asyncHandler(async (req, res) => {
     message: '회원 탈퇴가 완료되었습니다.',
   });
 });*/
-const transaction = await sequelize.transaction();
+const t = await sequelize.transaction();
+
   try {
     const userId = req.user.id;
-        await User.update(
-      { isActive: false },
-      { where: { id: userId }, transaction }
-    );
+    await User.update({ isActive: false }, { where: { id: userId }, transaction: t });
+    await Team.update({ isActive: false }, { where: { creatorId: userId }, transaction: t });
+    await Inquiry.destroy({ where: { userId }, transaction: t });
+    await Minutes.destroy({ where: { authorId: userId }, transaction: t });
 
-    await Team.update(
-      { isActive: false },
-      { where: { creatorId: userId }, transaction }
-    );
-
-    await Inquiry.destroy({ where: { userId }, transaction });
-    await Minutes.destroy({ where: { authorId: userId }, transaction });
-
-    await transaction.commit();
+    await t.commit();
 
     res.json({
       message: '회원 탈퇴가 완료되었습니다.',
     });
   } catch (error) {
-    await transaction.rollback();
+    await t.rollback();
     throw error;
   }
 });
@@ -549,6 +570,7 @@ module.exports = {
   getPasswordResetPage,
   resetPassword,
   getProfile,
+  getMyTeamNames,
   updateProfile,
   verifyEmailChange,
   deleteAccount,
