@@ -85,6 +85,8 @@
  *   patch:
  *     summary: 회의록 수정
  *     tags: [회의록 (Minutes)]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: minute_id
@@ -100,10 +102,18 @@
  *     responses:
  *       200:
  *         description: 수정 성공
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 수정 권한 없음 (작성자가 아닌 경우)
+ *       404:
+ *         description: 존재하지 않는 회의록
  *
  *   delete:
  *     summary: 회의록 삭제
  *     tags: [회의록 (Minutes)]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: minute_id
@@ -113,4 +123,10 @@
  *     responses:
  *       200:
  *         description: 삭제 완료
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 삭제 권한 없음 (작성자가 아닌 경우)
+ *       404:
+ *         description: 존재하지 않는 회의록
  */
