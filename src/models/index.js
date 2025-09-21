@@ -82,19 +82,14 @@ const Team = sequelize.define('Team', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  creatorId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'creator_id'
+  teamtag: {
+    type: DataTypes.STRING(50),
+    allowNull: true
   },
-  isActive: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-    field: 'is_active'
-  }
 }, {
   tableName: 'teams',
-  timestamps: true,
+  // timestamps: true,
+  timestamps: false,
   createdAt: 'created_at',
   updatedAt: 'updated_at'
 });

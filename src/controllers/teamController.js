@@ -1,5 +1,4 @@
-const { Team, User } = require('../models');
-
+const { Team, User, TeamMember, Minute } = require('../models');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 /**
@@ -8,17 +7,20 @@ const { asyncHandler } = require('../middleware/errorMiddleware');
  * @access  Private
  */
 const createTeam = asyncHandler(async (req, res) => {
-  const { name, description } = req.body;
+  const { title, description, teamtag } = req.body;
 
   const team = await Team.create({
-    name,
+    title,
     description,
-    manager: req.user.id,
-    members: [{ user: req.user.id, role: 'manager' }],
+    teamtag,
+    managerEmail: req.user.email,
   });
 
-  await User.findByIdAndUpdate(req.user.id, {
-    $addToSet: { teams: team._id },
+  // 팀장 추가
+  await TeamMember.create({
+    teamId: team.id,
+    email: req.user.email,
+    role: 'owner',
   });
 
   res.status(201).json({
@@ -28,21 +30,23 @@ const createTeam = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    사용자 검색
- * @route   GET /api/teams/search?q=keyword
+ * @desc    사용자 검색 (이메일)
+ * @route   GET /api/teams/search?q=email
  * @access  Private
  */
 const searchUsers = asyncHandler(async (req, res) => {
   const { q } = req.query;
 
   if (!q) {
-    return res.status(400).json({
-      error: 'Search query required',
-      message: '검색어를 입력해주세요.',
-    });
+    return res.status(400).json({ error: 'Search query required', message: '검색어를 입력해주세요.' });
   }
 
-  const users = await User.searchByKeyword(q).limit(10);
+  const users = await User.findAll({
+    where: { email: { [User.sequelize.Op.like]: `%${q}%` } },
+    limit: 10,
+    attributes: ['email', 'name'],
+  });
+
   res.json({ users });
 });
 
@@ -52,23 +56,16 @@ const searchUsers = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const addMemberToTeam = asyncHandler(async (req, res) => {
-  const { userId } = req.body;
+  const { email } = req.body;
   const { teamId } = req.params;
 
-  const team = await Team.findById(teamId);
-  if (!team) {
-    return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
-  }
-  if (team.members.some(m => m.user.toString() === userId)) {
-  return res.status(400).json({ error: 'User already exists' });
-  }
+  const team = await Team.findByPk(teamId);
+  if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
 
-  team.members.push({ user: userId, role: 'member' });
-  await team.save();
+  const existing = await TeamMember.findOne({ where: { teamId, email } });
+  if (existing) return res.status(400).json({ error: 'User already exists' });
 
-  await User.findByIdAndUpdate(userId, {
-    $addToSet: { teams: team._id },
-  });
+  await TeamMember.create({ teamId, email, role: 'member' });
 
   res.json({ message: '사용자가 팀에 추가되었습니다.' });
 });
@@ -81,38 +78,65 @@ const addMemberToTeam = asyncHandler(async (req, res) => {
 const getTeamMembers = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
 
-  const team = await Team.findById(teamId)
-    .populate('members.user', 'name email')
-    .select('members manager');
+  const team = await Team.findByPk(teamId);
+  if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
 
-  if (!team) {
-    return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
-  }
+  const members = await TeamMember.findAll({
+    where: { teamId },
+    include: [{ model: User, attributes: ['name', 'email'] }],
+  });
 
-  // 권한 체크: 해당 팀 멤버가 아니면 접근 불가
-  if (!team.members.some(m => String(m.user._id) === String(req.user.id))) {
-    return res.status(403).json({ error: 'Forbidden', message: '팀에 속한 사용자만 조회할 수 있습니다.' });
-  }
+  // owner 먼저, 그 다음 이메일 가나다순
+  members.sort((a, b) => {
+    if (a.role === 'owner') return -1;
+    if (b.role === 'owner') return 1;
+    return a.email.localeCompare(b.email);
+  });
 
-  res.json({ members: team.members });
+  const result = members.map(m => ({
+    name: m.User.name,
+    email: m.email,
+    role: m.role,
+  }));
+
+  res.json({ members: result });
 });
 
-
 /**
- * @desc    팀 상세 조회
- * @route   GET /api/teams/:teamId
+ * @desc    팀 상세 조회 및 설명 수정
+ * @route   GET / PATCH /api/teams/:teamId
  * @access  Private
  */
 const getTeamDetail = asyncHandler(async (req, res) => {
-  const team = await Team.findById(req.params.teamId)
-    .populate('members.user', 'name email')
-    .populate('manager', 'name email');
+  const { teamId } = req.params;
+  const { description } = req.body; // PATCH일 때만 사용
 
-  if (!team) {
-    return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
+  const team = await Team.findByPk(teamId);
+  if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
+
+  if (description) {
+    team.description = description;
+    await team.save();
   }
 
   res.json({ team });
+});
+
+/**
+ * @desc    팀별 회의록 조회
+ * @route   GET /api/teams/:teamId/minutes
+ * @access  Private
+ */
+const getTeamMinutes = asyncHandler(async (req, res) => {
+  const { teamId } = req.params;
+
+  // 팀 멤버인지 체크
+  const member = await TeamMember.findOne({ where: { teamId, email: req.user.email } });
+  if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회 가능' });
+
+  const minutes = await Minute.findAll({ where: { teamId } });
+
+  res.json({ minutes });
 });
 
 /**
@@ -121,44 +145,36 @@ const getTeamDetail = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const leaveTeam = asyncHandler(async (req, res) => {
-  const team = await Team.findById(req.params.teamId);
+  const { teamId } = req.params;
+
+  const team = await Team.findByPk(teamId);
   if (!team) {
     return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
   }
 
-  team.members.pull({ user: req.user.id });
-  await team.save();
-
-  await User.findByIdAndUpdate(req.user.id, {
-    $pull: { teams: team._id },
+  await TeamMember.destroy({
+    where: { teamId, email: req.user.email },
   });
 
   res.json({ message: '팀에서 탈퇴했습니다.' });
 });
 
+
 /**
  * @desc    팀원 강퇴
- * @route   DELETE /api/teams/:teamId/members/:userId
+ * @route   DELETE /api/teams/:teamId/members
  * @access  Private (팀장만)
  */
 const kickMember = asyncHandler(async (req, res) => {
-  const team = await Team.findById(req.params.teamId);
-  if (!team) {
-    return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
-  }
+  const { email } = req.body;
+  const { teamId } = req.params;
 
-  if (team.manager.toString() !== req.user.id) {
-    return res.status(403).json({ error: 'Unauthorized', message: '팀장만 강퇴할 수 있습니다.' });
-  }
+  const team = await Team.findByPk(teamId);
+  if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
 
-  team.members.pull({ user: req.params.userId });
-  await team.save();
+  await TeamMember.destroy({ where: { teamId, email } });
 
-  await User.findByIdAndUpdate(req.params.userId, {
-    $pull: { teams: team._id },
-  });
-
-  res.json({ message: '팀원이 강퇴되었습니다.' });
+  res.json({ message: '팀원 제거 완료' });
 });
 
 /**
@@ -193,6 +209,7 @@ module.exports = {
   addMemberToTeam,
   getTeamMembers,
   getTeamDetail,
+  getTeamMinutes,
   leaveTeam,
   kickMember,
   deleteTeam,
