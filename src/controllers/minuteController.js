@@ -8,16 +8,12 @@ const { asyncHandler } = require('../middleware/errorMiddleware');
  * @access  Private
  */
 const createMinute = asyncHandler(async (req, res) => {
-  const { meetingId, title, content, todos, links } = req.body;
-//   const { teamId, meetingId } = req.params;
-
-//   const meeting = await Meeting.findOne({ _id: meetingId, team: teamId });
-//   if (!meeting) {
-//     return res.status(404).json({
-//       error: 'Meeting not found',
-//       message: '해당 팀에 속한 회의가 존재하지 않습니다.',
-//     });
-//   }
+  const { meetingId,
+    title,
+    content,
+    // todos,
+    // links
+  } = req.body;
 
   if (!meetingId) {
     return res.status(400).json({
@@ -27,12 +23,25 @@ const createMinute = asyncHandler(async (req, res) => {
   }
 
   const minute = await Minute.create({
-    meeting: meetingId,
+
+    meetingId,
+    // 회의록 수정/삭제 사용자 제한을 위해 authorId가 필요함
     authorId: req.user.id,
+    // 수정 데이터
     title,
+    attendees,
+    meetingDate,
+    location,
+    meetingLink,
     content,
-    todos,
-    links,
+
+    // TODO: 기존 데이터 (남길지 뺄지 결정)
+    // meeting: meetingId,
+    // authorId: req.user.id,
+    // title,
+    // content,
+    // todos,
+    // links,
   });
 
   res.status(201).json({
@@ -47,15 +56,10 @@ const createMinute = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const updateMinute = asyncHandler(async (req, res) => {
-//   const { teamId, meetingId, minuteId } = req.params;
   const { minuteId } = req.params;
 
-// const meeting = await Meeting.findOne({ _id: meetingId, team: teamId });
-//   if (!meeting) {
-//     return res.status(404).json({ error: 'Meeting not found', message: '회의를 찾을 수 없습니다.' });
-//   }
-
   const minute = await Minute.findById(minuteId);
+
   if (!minute) {
     return res.status(404).json({ error: 'Minute not found', message: '존재하지 않는 회의록입니다.' });
   }
@@ -67,9 +71,9 @@ const updateMinute = asyncHandler(async (req, res) => {
   Object.assign(minute, req.body);
   await minute.save();
 
-  res.json({
+  res.status(200).json({
     message: '회의록이 수정되었습니다.',
-    minute,
+    minute: updatedMinute,
   });
 });
 
@@ -79,15 +83,11 @@ const updateMinute = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const deleteMinute = asyncHandler(async (req, res) => {
-//   const { teamId, meetingId, minuteId } = req.params;
+
   const { minuteId } = req.params;
 
-//   const meeting = await Meeting.findOne({ _id: meetingId, team: teamId });
-//   if (!meeting) {
-//     return res.status(404).json({ error: 'Meeting not found', message: '회의를 찾을 수 없습니다.' });
-//   }
-
   const minute = await Minute.findById(minuteId);
+
   if (!minute) {
     return res.status(404).json({ error: 'Minute not found', message: '존재하지 않는 회의록입니다.' });
   }
@@ -98,7 +98,10 @@ const deleteMinute = asyncHandler(async (req, res) => {
 
   await minute.deleteOne();
 
-  res.json({ message: '회의록이 삭제되었습니다.' });
+  res.status(200).json({
+    message: '회의록이 삭제되었습니다.',
+    minuteId: minuteId,
+  });
 });
 
 module.exports = {

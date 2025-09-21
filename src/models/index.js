@@ -82,19 +82,14 @@ const Team = sequelize.define('Team', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  creatorId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'creator_id'
+  teamtag: {
+    type: DataTypes.STRING(50),
+    allowNull: true
   },
-  isActive: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-    field: 'is_active'
-  }
 }, {
   tableName: 'teams',
-  timestamps: true,
+  // timestamps: true,
+  timestamps: false,
   createdAt: 'created_at',
   updatedAt: 'updated_at'
 });
@@ -249,31 +244,54 @@ const MeetingAttendee = sequelize.define('MeetingAttendee', {
   ]
 });
 
-// 6. Minutes 모델 (회의록)
-const Minutes = sequelize.define('Minutes', {
+// 6. Minute 모델 (회의록)
+const Minute = sequelize.define('Minutes', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
+
+// 수정 데이터
+  title: {                        // 회의록 제목
+    type: DataTypes.STRING(200),
+    allowNull: false
+  },
+  attendees: {                    // 참석자 (integer..?)
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  meetingDate: {                  // 회의날짜
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    field: 'meeting_date'
+  },
+  location: {                     // 장소
+    type: DataTypes.STRING(200),
+    allowNull: true
+  },
+  meetingLink: {                  // 회의 링크
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    field: 'meeting_link'
+  },
+  content: {                      // 본문
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+
   meetingId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     field: 'meeting_id'
-  },
-  title: {
-    type: DataTypes.STRING(200),
-    allowNull: false
-  },
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false
   },
   authorId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     field: 'author_id'
   },
+
+  // 기존 데이터 (남길지 뺄지 결정)
   version: {
     type: DataTypes.INTEGER,
     defaultValue: 1
@@ -282,7 +300,7 @@ const Minutes = sequelize.define('Minutes', {
     type: DataTypes.ENUM('draft', 'published', 'archived'),
     defaultValue: 'draft'
   },
-  // PostgreSQL JSONB 필드 추가
+// PostgreSQL JSONB 필드 추가
   metadata: {
     type: DataTypes.JSONB,
     defaultValue: {}
@@ -291,7 +309,19 @@ const Minutes = sequelize.define('Minutes', {
   tableName: 'minutes',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+
+  // TODO: 기존 데이터를 남긴다면 응답 필드 순서 고정, 뺀다면 삭제
+  defaultScope: {
+    attributes: [
+      'id',
+      // 요구 순서
+      'title', 'attendees', 'meetingDate', 'location', 'meetingLink', 'content',
+      // 나머지
+      'meetingId', 'authorId', 'version', 'status', 'metadata',
+      'created_at', 'updated_at'
+    ]
+  }
 });
 
 // 7. WhenToMeet 모델
@@ -841,7 +871,7 @@ module.exports = {
   TeamMember,
   Meeting,
   MeetingAttendee,
-  Minutes,
+  Minute,
   WhenToMeet,
   WhenToMeetSlot,
   WhenToMeetResponse,
