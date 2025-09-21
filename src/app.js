@@ -42,10 +42,24 @@ app.use(helmet({
   },
 }));
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: process.env.CLIENT_URL || 'http://localhost:3000',
+//   credentials: true,
+// }));
+
+const whitelist = [
+    'http://localhost:3000',
+    'http://43.201.82.124',
+    'http://ec2-43-201-82-124.ap-northeast-2.compute.amazonaws.com',
+    'https://localhost:3000',
+    'https://43.201.82.124',
+    'https://ec2-43-201-82-124.ap-northeast-2.compute.amazonaws.com',
+    'https://waayto.com',  // 배포 도메인 생기면 추가
+    'http://waayto.com',
+    'https://waytomeet.site',
+    'http://waytomeet.site'
+];
+app.use(cors({ origin: whitelist, credentials: true }));
 
 // Rate limiting을 API 라우트에만 적용
 app.use('/api', limiter);
