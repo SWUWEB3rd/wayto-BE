@@ -86,6 +86,10 @@ const Team = sequelize.define('Team', {
     type: DataTypes.STRING(50),
     allowNull: true
   },
+  managerEmail: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 }, {
   tableName: 'teams',
   // timestamps: true,

@@ -175,6 +175,21 @@
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
  *         description: 권한 없음 (팀장 아님)
+ *   delete:
+ *     summary: 팀원 제거 (팀장만)
+ *     tags: [팀 (Team)]
+ *     security: [ { bearerAuth: [] } ]
+ *     parameters:
+ *       - in: path
+ *         name: team_id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204: { description: 삭제 완료 }
  */
 
 /**
@@ -201,25 +216,3 @@
  *         description: 팀 또는 멤버십 없음
  */
 
-
-// TODO: 경로 user_id? email?
-
-/**
- * @swagger
- * /api/teams/{team_id}/members/{user_id}:
- *   delete:
- *     summary: 팀원 제거 (팀장만)
- *     tags: [팀 (Team)]
- *     security: [ { bearerAuth: [] } ]
- *     parameters:
- *       - in: path
- *         name: team_id
- *         required: true
- *         schema: { type: string }
- *       - in: path
- *         name: email
- *         required: true
- *         schema: { type: string }
- *     responses:
- *       204: { description: 삭제 완료 }
- */
