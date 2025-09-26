@@ -82,16 +82,18 @@
 
 /**
  * @swagger
- * /api/teams/{team_id}:
+ * /api/teams/{teamId}:
  *   get:
  *     summary: 특정 팀 정보 조회
  *     tags: [팀 (Team)]
+ *     security: [ { bearerAuth: [] } ]
  *     parameters:
  *       - in: path
- *         name: team_id
+ *         name: teamId
  *         required: true
  *         schema:
  *           type: string
+ *           description: 조회할 팀의 ID
  *     responses:
  *       200:
  *         description: 팀 정보 반환
@@ -99,31 +101,67 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Team'
+ *       404:
+ *         description: 존재하지 않는 팀
+ * 
+ *   patch:
+ *     summary: 팀 설명 수정
+ *     tags: [팀 (Team)]
+ *     parameters:
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: 수정할 팀의 ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               description:
+ *                 type: string
+ *                   example: "우리 팀의 새로운 목표는..."
+ *     responses:
+ *       200:
+ *         description: 팀 설명 수정 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Team'
+ *       404:
+ *         description: 존재하지 않는 팀
  *
  *   delete:
  *     summary: 팀 삭제 (팀장만 가능)
  *     tags: [팀 (Team)]
+ *     security: [ { bearerAuth: [] } ]
  *     parameters:
  *       - in: path
- *         name: team_id
+ *         name: teamId
  *         required: true
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       204:
  *         description: 삭제 완료
+ *       403:
+ *         description: 권한 없음
+ *       404:
+ *         description: 존재하지 않는 팀
  */
 
 /**
  * @swagger
- * /api/teams/{team_id}/members:
+ * /api/teams/{teamId}/members:
  *   get:
  *     summary: 팀원 목록
  *     tags: [팀 (Team)]
  *     security: [ { bearerAuth: [] } ]
  *     parameters:
  *       - in: path
- *         name: team_id
+ *         name: teamId
  *         required: true
  *         schema: { type: string }
  *     responses:
@@ -131,8 +169,13 @@
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items: { $ref: '#/components/schemas/TeamMember' }
+ *               type: object
+ *               properties:
+ *                 members:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/TeamMember'
+ * 
  *   post:
  *     summary: 팀원 추가
  *     description: 검색된 사용자를 팀에 추가 (팀장만 가능)
@@ -141,7 +184,7 @@
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: team_id
+ *         name: teamId
  *         required: true
  *         schema:
  *           type: string
@@ -164,7 +207,10 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Team'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       400:
  *         description: 잘못된 요청
  *         content:
@@ -175,26 +221,34 @@
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
  *         description: 권한 없음 (팀장 아님)
+ * 
  *   delete:
- *     summary: 팀원 제거 (팀장만)
+ *     summary: 팀원 강퇴 (팀장만)
  *     tags: [팀 (Team)]
  *     security: [ { bearerAuth: [] } ]
  *     parameters:
  *       - in: path
- *         name: team_id
+ *         name: teamId
  *         required: true
  *         schema: { type: string }
- *       - in: path
- *         name: email
- *         required: true
- *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *               required: [email]
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   example: "kickmember@example.com"
  *     responses:
- *       204: { description: 삭제 완료 }
+ *       204: { description: 강퇴 완료 }
  */
 
 /**
  * @swagger
- * /api/teams/{team_id}/members/me:
+ * /api/teams/{teamId}/members/me:
  *   delete:
  *     summary: 팀 탈퇴 (본인)
  *     description: 현재 로그인한 사용자를 팀에서 제거
@@ -203,16 +257,11 @@
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: team_id
+ *         name: teamId
  *         required: true
  *         schema:
  *           type: string
  *     responses:
  *       204:
  *         description: 탈퇴 완료
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       404:
- *         description: 팀 또는 멤버십 없음
  */
-
