@@ -10,7 +10,7 @@
  * /api/minutes:
  *   post:
  *     summary: 회의록 작성
- *     tags: [회의록 (Minutes)]
+ *     tags: [회의록 (Minute)]
  *     requestBody:
  *       required: true
  *       content:
@@ -28,21 +28,20 @@
 
 /**
  * @swagger
- * /api/minutes/{minute_id}:
+ * /api/minutes/{minuteId}:
  *   get:
  *     summary: 회의록 상세 조회
- *     description: 특정 회의(meeting_id)의 회의록을 조회합니다. 회의록이 없으면 404와 함께 작성 유도 메시지를 반환합니다.
- *     tags: [회의록 (Minutes)]
+ *     description: 특정 회의록을 조회합니다. 회의록이 없으면 404와 함께 작성 유도 메시지를 반환합니다.
+ *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: meeting_id
+ *         name: minuteId
  *         required: true
  *         schema:
  *           type: string
- *           example: "m_1001"
- *         description: 회의 ID
+ *         description: 회의록 ID
  *     responses:
  *       200:
  *         description: 회의록 조회 성공
@@ -84,12 +83,12 @@
  * 
  *   patch:
  *     summary: 회의록 수정
- *     tags: [회의록 (Minutes)]
+ *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: minute_id
+ *         name: minuteId
  *         required: true
  *         schema:
  *           type: string
@@ -111,17 +110,17 @@
  *
  *   delete:
  *     summary: 회의록 삭제
- *     tags: [회의록 (Minutes)]
+ *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: minute_id
+ *         name: minuteId
  *         required: true
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       204:
  *         description: 삭제 완료
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'

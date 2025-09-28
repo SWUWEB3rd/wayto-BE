@@ -1,4 +1,4 @@
-const { Minute } = require('../models');
+const { Minute, User } = require('../models');
 
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
@@ -8,8 +8,15 @@ const { asyncHandler } = require('../middleware/errorMiddleware');
  * @access  Private
  */
 const createMinute = asyncHandler(async (req, res) => {
+  /* 제가 이해한 건 title과 content만 가져오는걸로 이해해서
+  나머지 필드는 주석처리 해놨는데,
+  혹시 데이터가 더 필요하면 주석 해제하면 될 것 같습니다. */
   const { meetingId,
     title,
+    // attendees,
+    // meetingDate,
+    // location,
+    // meetingLink,
     content,
     // todos,
     // links
@@ -51,6 +58,32 @@ const createMinute = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    회의록 상세 조회
+ * @route   GET /api/minutes/:minuteId
+ * @access  Private
+ */
+const getMinute = asyncHandler(async (req, res) => {
+  const { minuteId } = req.params;
+
+  const minute = await Minute.findByPk(minuteId, {
+    include: {
+      model: User,
+      as: 'author',
+      attributes: ['id', 'name'],
+    },
+  });
+
+  if (!minute) {
+    return res.status(404).json({
+      error: 'Minute not found',
+      message: '회의록이 없습니다. 작성 페이지로 이동하세요.',
+    });
+  }
+
+  res.status(200).json(minute);
+});
+
+/**
  * @desc    회의록 수정
  * @route   PATCH /api/minutes/:minuteId
  * @access  Private
@@ -58,7 +91,7 @@ const createMinute = asyncHandler(async (req, res) => {
 const updateMinute = asyncHandler(async (req, res) => {
   const { minuteId } = req.params;
 
-  const minute = await Minute.findById(minuteId);
+  const minute = await Minute.findByPk(minuteId);
 
   if (!minute) {
     return res.status(404).json({ error: 'Minute not found', message: '존재하지 않는 회의록입니다.' });
@@ -73,7 +106,7 @@ const updateMinute = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     message: '회의록이 수정되었습니다.',
-    minute: updatedMinute,
+    minute: minute,
   });
 });
 
@@ -86,7 +119,7 @@ const deleteMinute = asyncHandler(async (req, res) => {
 
   const { minuteId } = req.params;
 
-  const minute = await Minute.findById(minuteId);
+  const minute = await Minute.findByPk(minuteId);
 
   if (!minute) {
     return res.status(404).json({ error: 'Minute not found', message: '존재하지 않는 회의록입니다.' });
@@ -96,16 +129,18 @@ const deleteMinute = asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized', message: '작성자만 삭제할 수 있습니다.' });
   }
 
-  await minute.deleteOne();
+  await minute.destroy();
 
-  res.status(200).json({
-    message: '회의록이 삭제되었습니다.',
-    minuteId: minuteId,
-  });
+  // res.status(200).json({
+  //   message: '회의록이 삭제되었습니다.',
+  //   minuteId: minuteId,
+  // });
+  res.status(204).send();
 });
 
 module.exports = {
   createMinute,
+  getMinute,
   updateMinute,
   deleteMinute,
 };

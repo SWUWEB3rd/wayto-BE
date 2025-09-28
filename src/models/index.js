@@ -655,7 +655,7 @@ const initializeAssociations = () => {
     // User 관계
     User.hasMany(Team, { foreignKey: 'creatorId', as: 'createdTeams' });
     User.hasMany(Meeting, { foreignKey: 'organizerId', as: 'organizedMeetings' });
-    User.hasMany(Minutes, { foreignKey: 'authorId', as: 'writtenMinutes' });
+    User.hasMany(Minute, { foreignKey: 'authorId', as: 'author' });
     User.hasMany(WhenToMeet, { foreignKey: 'creatorId', as: 'createdPolls' });
     User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
     User.hasOne(UserSettings, { foreignKey: 'userId', as: 'settings' });
@@ -670,11 +670,11 @@ const initializeAssociations = () => {
     // Meeting 관계
     Meeting.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
     Meeting.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
-    Meeting.hasMany(Minutes, { foreignKey: 'meetingId', as: 'minutes' });
+    Meeting.hasMany(Minute, { foreignKey: 'meetingId', as: 'minutes' });
 
-    // Minutes 관계
-    Minutes.belongsTo(Meeting, { foreignKey: 'meetingId', as: 'meeting' });
-    Minutes.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+    // Minute 관계
+    Minute.belongsTo(Meeting, { foreignKey: 'meetingId', as: 'meeting' });
+    Minute.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
     // WhenToMeet 관계
     WhenToMeet.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
