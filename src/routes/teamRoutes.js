@@ -30,4 +30,7 @@ router.delete('/:teamId/members', authenticate, teamController.kickMember);
 // 팀 탈퇴 (본인이 탈퇴)
 router.delete('/:teamId/members/me', authenticate, teamController.leaveTeam);
 
+// 팀별 회의록 조회
+router.get('/:teamId/minutes', authenticate, teamController.getTeamMinutes);
+
 module.exports = router;

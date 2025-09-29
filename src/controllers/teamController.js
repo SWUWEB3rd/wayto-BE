@@ -108,7 +108,7 @@ const getTeamMembers = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    팀 상세 조회 및 설명 수정
+ * @desc    팀 상세 조회
  * @route   GET /api/teams/:teamId
  * @access  Private
  */
@@ -149,11 +149,25 @@ const updateTeamDetail = asyncHandler(async (req, res) => {
 const getTeamMinutes = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
 
+  const team = await Team.findByPk(teamId);
+  if (!team) {
+    return res.status(404).json({ message: '존재하지 않는 팀입니다.' });
+  }
+
   // 팀 멤버인지 체크
   const member = await TeamMember.findOne({ where: { teamId, email: req.user.email } });
-  if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회 가능' });
+  if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회할 수 있습니다.' });
 
-  const minutes = await Minute.findAll({ where: { teamId } });
+  const minutes = await Minute.findAll({
+    where: { teamId },
+    include: [{
+      model: User,
+      as: 'author',
+      attributes: ['name', 'email']
+    }],
+    order: [['createdAt', 'DESC']], // 최신순 정렬
+    attributes: ['id', 'title', 'createdAt', 'updatedAt']
+  });
 
   res.json({ minutes });
 });

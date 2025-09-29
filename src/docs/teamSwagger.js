@@ -265,3 +265,72 @@
  *       204:
  *         description: 탈퇴 완료
  */
+
+/**
+ * @swagger
+ * /api/teams/{teamId}/minutes:
+ *   get:
+ *     summary: 팀별 회의록 조회
+ *     description: 특정 팀에 속한 모든 회의록 목록을 조회합니다. 팀 멤버만 이 기능을 사용할 수 있습니다.
+ *     tags: [팀 (Team)]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: 회의록을 조회할 팀의 ID
+ *     responses:
+ *       200:
+ *         description: 회의록 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *                 properties:
+ *                   minutes:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           description: 회의록 ID
+ *                         title:
+ *                           type: string
+ *                           descripton: 회의록 제목
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           description: 생성 일시
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                           description: 수정 일시
+ *                         author:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                               description: 작성자 이름
+ *                               email:
+ *                                 type: string
+ *                                 description: 작성자 이메일
+ *                         example:
+ *                           minutes:
+ *                             - id: 101
+ *                               title: "1주차 주간 회의"
+ *                               createdAt: "2025-09-22T10:00:00Z"
+ *                               updatedAt: "2025-09-22T11:20:00Z"
+ *                               author:
+ *                                 name: "홍길동"
+ *                                 email: "hong@example.com"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 권한 없음 (팀 멤버가 아님)
+ *       404:
+ *         description: 존재하지 않는 팀
+ */
