@@ -333,7 +333,7 @@ const options = {
   },
   apis: [
     './src/routes/*.js',        // 라우트 파일들 (기능만)
-    './src/docs/*.js',          // Swagger 문서 파일들 (문서만)
+    // './src/docs/*.js',          // Swagger 문서 파일들 (문서만)
     './src/docs/userSwagger.js',      // ✅ 이건 OK
     './src/docs/teamSwagger.js',      // ✅ 이건 OK
     './src/docs/calendarSwagger.js',  // ✅ 이건 OK
