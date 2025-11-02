@@ -546,7 +546,6 @@
  *         $ref: '#/components/responses/ValidationError'
  */
 
-
 /**
  * @swagger
  * /api/users/find/id/success:
