@@ -31,7 +31,7 @@ router.get('/me', authenticate, userController.getProfile);
 router.patch('/me', authenticate, userController.updateProfile);
 router.post('/me/verify-email', authenticate, userController.verifyEmailChange);
 router.delete('/me', authenticate, userController.deleteAccount);
-router.get('/me/teams/names', authenticate, userController.getMyTeamNames);
+// router.get('/me/teams/names', authenticate, userController.getMyTeamNames);
 // 사용자 검색 (팀 관리용, 인증 필요)
 router.get('/search', authenticate, userController.searchUsers);
 
