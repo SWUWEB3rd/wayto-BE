@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   - name: 1:1 문의
- *     description: 사용자 1:1 문의 관련 API
+ *     description: 사용자 1:1 문의 작성
  */
 
 /**
@@ -11,7 +11,7 @@
  *   post:
  *     summary: 1:1 문의 작성
  *     tags: [1:1 문의]
- *     description: 사용자로부터 1:1 문의를 작성받아 관리자에게 전송합니다.
+ *     description: 로그인 사용자가 1:1 문의를 등록합니다. 답변은 이메일로 발송됩니다.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -19,67 +19,54 @@
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [title, content]
- *             properties:
- *               title:
- *                 type: string
- *                 example: "계정 문제 문의"
- *               content:
- *                 type: string
- *                 example: "계정에 로그인할 수 없습니다. 확인 부탁드립니다."
+ *             $ref: '#/components/schemas/InquiryCreateRequest'
+ *           example:
+ *             title: "계정 문제 문의"
+ *             content: "로그인이 되지 않습니다. 확인 부탁드립니다."
  *     responses:
  *       201:
  *         description: 문의 등록 성공
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-
-/**
- * @swagger
- * /api/inquiries/{inquiry_id}:
- *   get:
- *     summary: 1:1 문의 상세 조회
- *     tags: [1:1 문의]
- *     description: 사용자가 본인의 문의 및 관리자 답변을 조회합니다.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: inquiry_id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: 문의 조회 성공
- *       404:
- *         description: 문의를 찾을 수 없음
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-
-/**
- * @swagger
- * /api/inquiries:
- *   get:
- *     summary: 1:1 문의 전체 조회
- *     tags: [1:1 문의]
- *     description: 로그인한 사용자가 작성한 모든 1:1 문의 목록을 조회합니다.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: 문의 목록 조회 성공
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 inquiries:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Inquiry'
+ *               $ref: '#/components/schemas/InquiryCreatedResponse'
+ *             example:
+ *               id: 123
+ *               status: "open"
+ *               createdAt: "2025-09-14T11:22:33.000Z"
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     InquiryCreateRequest:
+ *       type: object
+ *       required: [title, content]
+ *       properties:
+ *         title:
+ *           type: string
+ *           maxLength: 200
+ *           example: "계정 문제 문의"
+ *         content:
+ *           type: string
+ *           maxLength: 5000
+ *           example: "계정에 로그인할 수 없습니다. 확인 부탁드립니다."
+ *     InquiryCreatedResponse:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 123
+ *         status:
+ *           type: string
+ *           enum: [open, closed]
+ *           example: "open"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
  */
