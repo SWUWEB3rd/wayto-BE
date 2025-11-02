@@ -51,12 +51,12 @@ const signup = asyncHandler(async (req, res) => {
   });
 
   // JWT 토큰 생성
-  const token = generateToken(user._id);
+  const token = generateToken(user.id);
 
   res.status(201).json({
     message: '회원가입이 완료되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -73,8 +73,10 @@ const signup = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // 사용자 조회 (비밀번호 포함)
-  const user = await User.findOne({ email, isActive: true }).select('+password');
+  // 사용자 조회 (비밀번호 포함) - Sequelize 방식으로 변경
+  const user = await User.findOne({
+    where: { email, isActive: true }
+  });
 
   if (!user || !(await user.comparePassword(password))) {
     return res.status(401).json({
@@ -88,12 +90,12 @@ const login = asyncHandler(async (req, res) => {
   await user.save();
 
   // JWT 토큰 생성
-  const token = generateToken(user._id);
+  const token = generateToken(user.id);
 
   res.json({
     message: '로그인되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -291,11 +293,21 @@ const findUserPassword = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).populate('teams', 'name description');
+  const { Team } = require('../models');
+
+  const user = await User.findByPk(req.user.id, {
+    include: [{
+      model: Team,
+      as: 'teams',
+      attributes: ['id', 'name', 'description'],
+      through: { attributes: [] }
+    }],
+    attributes: { exclude: ['password'] }
+  });
 
   res.json({
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -314,7 +326,7 @@ const getProfile = asyncHandler(async (req, res) => {
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, phone, currentPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findByPk(req.user.id);
 
   // 비밀번호 변경 시 현재 비밀번호 확인
   if (newPassword) {
@@ -344,7 +356,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   res.json({
     message: '프로필이 업데이트되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -358,7 +370,10 @@ const updateProfile = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const deleteAccount = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(req.user.id, { isActive: false });
+  await User.update(
+    { isActive: false },
+    { where: { id: req.user.id } }
+  );
 
   res.json({
     message: '회원 탈퇴가 완료되었습니다.',
@@ -409,12 +424,15 @@ const getPasswordResetPage = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword } = req.body;
+  const { Op } = require('sequelize');
 
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
   const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
+    where: {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { [Op.gt]: new Date() }
+    }
   });
 
   if (!user) {
@@ -425,8 +443,8 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
   await user.save();
 
   res.json({
