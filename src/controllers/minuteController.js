@@ -1,4 +1,4 @@
-const { Minute } = require('../models');
+const { Minutes } = require('../models');
 
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
@@ -8,9 +8,14 @@ const { asyncHandler } = require('../middleware/errorMiddleware');
  * @access  Private
  */
 const createMinute = asyncHandler(async (req, res) => {
-  const { meetingId,
+  const {
+    meetingId,
     title,
     content,
+    attendees,
+    meetingDate,
+    location,
+    meetingLink,
     // todos,
     // links
   } = req.body;
@@ -22,8 +27,7 @@ const createMinute = asyncHandler(async (req, res) => {
     });
   }
 
-  const minute = await Minute.create({
-
+  const minute = await Minutes.create({
     meetingId,
     // 회의록 수정/삭제 사용자 제한을 위해 authorId가 필요함
     authorId: req.user.id,
@@ -58,13 +62,15 @@ const createMinute = asyncHandler(async (req, res) => {
 const updateMinute = asyncHandler(async (req, res) => {
   const { minuteId } = req.params;
 
-  const minute = await Minute.findById(minuteId);
+  // Sequelize 메서드로 변경
+  const minute = await Minutes.findByPk(minuteId);
 
   if (!minute) {
     return res.status(404).json({ error: 'Minute not found', message: '존재하지 않는 회의록입니다.' });
   }
 
-  if (minute.authorId.toString() !== req.user.id) {
+  // Sequelize는 integer 비교이므로 .toString() 불필요
+  if (minute.authorId !== req.user.id) {
     return res.status(403).json({ error: 'Unauthorized', message: '작성자만 수정할 수 있습니다.' });
   }
 
@@ -73,7 +79,7 @@ const updateMinute = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     message: '회의록이 수정되었습니다.',
-    minute: updatedMinute,
+    minute,
   });
 });
 
@@ -83,20 +89,22 @@ const updateMinute = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const deleteMinute = asyncHandler(async (req, res) => {
-
   const { minuteId } = req.params;
 
-  const minute = await Minute.findById(minuteId);
+  // Sequelize 메서드로 변경
+  const minute = await Minutes.findByPk(minuteId);
 
   if (!minute) {
     return res.status(404).json({ error: 'Minute not found', message: '존재하지 않는 회의록입니다.' });
   }
 
-  if (minute.authorId.toString() !== req.user.id) {
+  // Sequelize는 integer 비교이므로 .toString() 불필요
+  if (minute.authorId !== req.user.id) {
     return res.status(403).json({ error: 'Unauthorized', message: '작성자만 삭제할 수 있습니다.' });
   }
 
-  await minute.deleteOne();
+  // Sequelize destroy 메서드 사용
+  await minute.destroy();
 
   res.status(200).json({
     message: '회의록이 삭제되었습니다.',
