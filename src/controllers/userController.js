@@ -378,25 +378,6 @@ const deleteAccount = asyncHandler(async (req, res) => {
   res.json({
     message: '회원 탈퇴가 완료되었습니다.',
   });
-
-const t = await sequelize.transaction();
-
-  try {
-    const userId = req.user.id;
-    await User.update({ isActive: false }, { where: { id: userId }, transaction: t });
-    await Team.update({ isActive: false }, { where: { creatorId: userId }, transaction: t });
-    await Inquiry.destroy({ where: { userId }, transaction: t });
-    await Minutes.destroy({ where: { authorId: userId }, transaction: t });
-
-    await t.commit();
-
-    res.json({
-      message: '회원 탈퇴가 완료되었습니다.',
-    });
-  } catch (error) {
-    await t.rollback();
-    throw error;
-  }
 });
 
 // 추가 컨트롤러들
@@ -494,9 +475,7 @@ module.exports = {
   getPasswordResetPage,
   resetPassword,
   getProfile,
-  getMyTeamNames,
   updateProfile,
-  verifyEmailChange,
   deleteAccount,
   searchUsers,
 };
