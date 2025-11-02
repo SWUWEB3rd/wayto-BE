@@ -121,10 +121,9 @@ const connectDB = async () => {
     // 3. 모델 관계 설정
     initializeAssociations();
 
-    // 4. 개발 환경에서만 테이블 동기화 (운영에서는 마이그레이션 사용)
-    if (process.env.NODE_ENV === 'development') {
-      await syncDatabase(false); // force: false로 기존 데이터 보존
-    }
+    // 4. 테이블 동기화
+    // TODO: 프로덕션에서는 마이그레이션 도구 사용 권장
+    await syncDatabase(false); // force: false로 기존 데이터 보존
 
     console.log('✅ 데이터베이스 연결 및 초기화 완료');
 

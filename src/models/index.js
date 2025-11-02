@@ -86,6 +86,10 @@ const Team = sequelize.define('Team', {
     type: DataTypes.STRING(50),
     allowNull: true
   },
+  managerEmail: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 }, {
   tableName: 'teams',
   // timestamps: true,
@@ -244,8 +248,8 @@ const MeetingAttendee = sequelize.define('MeetingAttendee', {
   ]
 });
 
-// 6. Minute 모델 (회의록)
-const Minute = sequelize.define('Minute', {
+// 6. Minutes 모델 (회의록)
+const Minutes = sequelize.define('Minutes', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -257,7 +261,7 @@ const Minute = sequelize.define('Minute', {
     type: DataTypes.STRING(200),
     allowNull: false
   },
-  attendees: {                    // 참석자 (JSONB??)
+  attendees: {                    // 참석자 (integer..?)
     type: DataTypes.TEXT,
     allowNull: true
   },
@@ -283,11 +287,7 @@ const Minute = sequelize.define('Minute', {
   meetingId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    field: 'meeting_id',
-    // references: {
-    //   model: 'meeting',
-    //   key: 'id'
-    // }
+    field: 'meeting_id'
   },
   authorId: {
     type: DataTypes.INTEGER,
@@ -669,7 +669,7 @@ const initializeAssociations = () => {
     // User 관계
     User.hasMany(Team, { foreignKey: 'creatorId', as: 'createdTeams' });
     User.hasMany(Meeting, { foreignKey: 'organizerId', as: 'organizedMeetings' });
-    User.hasMany(Minute, { foreignKey: 'authorId', as: 'author' });
+    User.hasMany(Minutes, { foreignKey: 'authorId', as: 'writtenMinutes' });
     User.hasMany(WhenToMeet, { foreignKey: 'creatorId', as: 'createdPolls' });
     User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
     User.hasOne(UserSettings, { foreignKey: 'userId', as: 'settings' });
@@ -684,11 +684,11 @@ const initializeAssociations = () => {
     // Meeting 관계
     Meeting.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
     Meeting.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
-    Meeting.hasMany(Minute, { foreignKey: 'meetingId', as: 'minutes' });
+    Meeting.hasMany(Minutes, { foreignKey: 'meetingId', as: 'minutes' });
 
-    // Minute 관계
-    Minute.belongsTo(Meeting, { foreignKey: 'meetingId', as: 'meeting' });
-    Minute.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+    // Minutes 관계
+    Minutes.belongsTo(Meeting, { foreignKey: 'meetingId', as: 'meeting' });
+    Minutes.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
     // WhenToMeet 관계
     WhenToMeet.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
@@ -885,7 +885,7 @@ module.exports = {
   TeamMember,
   Meeting,
   MeetingAttendee,
-  Minute,
+  Minutes,
   WhenToMeet,
   WhenToMeetSlot,
   WhenToMeetResponse,

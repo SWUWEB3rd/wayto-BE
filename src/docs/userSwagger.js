@@ -752,10 +752,10 @@
 
 /**
  * @swagger
- * /api/users/email-change/verify:
+ * /api/users/me/verify-email:
  *   post:
  *     summary: 이메일 변경 인증(코드 검증)
- *     description: 발송된 인증 코드를 검증하고 실제 이메일을 변경합니다.
+ *     description: (요청에서 발송된) 인증 코드를 검증하고 실제 이메일을 변경합니다.
  *     tags: [사용자 관리 (User Management)]
  *     security:
  *       - bearerAuth: []
@@ -764,10 +764,12 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/EmailVerifyRequest'
- *           example:
- *             newEmail: "new@example.com"
- *             code: "123456"
+ *             type: object
+ *             required: [code]
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 example: "123456"
  *     responses:
  *       200:
  *         description: 이메일 변경 완료
@@ -777,7 +779,8 @@
  *               type: object
  *               properties:
  *                 message: { type: string, example: "이메일이 변경되었습니다." }
- *                 user: { $ref: '#/components/schemas/User' }
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  *       401:
