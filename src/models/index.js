@@ -244,8 +244,8 @@ const MeetingAttendee = sequelize.define('MeetingAttendee', {
   ]
 });
 
-// 6. Minute 모델 (회의록)
-const Minute = sequelize.define('Minutes', {
+// 6. Minutes 모델 (회의록)
+const Minutes = sequelize.define('Minutes', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -871,7 +871,7 @@ module.exports = {
   TeamMember,
   Meeting,
   MeetingAttendee,
-  Minute,
+  Minutes,
   WhenToMeet,
   WhenToMeetSlot,
   WhenToMeetResponse,
