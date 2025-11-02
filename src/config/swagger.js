@@ -15,10 +15,16 @@ const options = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production'
-          ? 'https://api.meetingplatform.com'
-          : 'http://localhost:3000',
-        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+        url: 'https://api.waytomeet.site',
+        description: 'Production API Server',
+      },
+      {
+        url: 'https://waayto.com',
+        description: 'Production Main Server',
+      },
+      {
+        url: 'http://localhost:3000',
+        description: 'Development Server',
       },
     ],
     components: {

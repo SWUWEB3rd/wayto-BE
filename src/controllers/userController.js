@@ -23,7 +23,7 @@ const signup = asyncHandler(async (req, res) => {
   const { email, password, name, phone } = req.body;
 
   // 이메일 중복 확인
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     return res.status(400).json({
       error: 'Email already exists',
@@ -33,7 +33,7 @@ const signup = asyncHandler(async (req, res) => {
 
   // 전화번호 중복 확인 (선택사항)
   if (phone) {
-    const existingPhone = await User.findOne({ phone });
+    const existingPhone = await User.findOne({ where: { phone } });
     if (existingPhone) {
       return res.status(400).json({
         error: 'Phone already exists',
@@ -125,7 +125,7 @@ const sendSignupVerification = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   // 이메일 중복 확인
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     return res.status(400).json({
       error: 'Email already exists',
@@ -198,7 +198,7 @@ const verifyEmailCode = asyncHandler(async (req, res) => {
 const checkEmailDuplicate = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ where: { email } });
 
   res.json({
     available: !existingUser,
@@ -214,7 +214,7 @@ const checkEmailDuplicate = asyncHandler(async (req, res) => {
 const checkPhoneDuplicate = asyncHandler(async (req, res) => {
   const { phone } = req.body;
 
-  const existingUser = await User.findOne({ phone });
+  const existingUser = await User.findOne({ where: { phone } });
 
   res.json({
     available: !existingUser,
@@ -239,7 +239,7 @@ const findUserId = asyncHandler(async (req, res) => {
     });
   }
 
-  const user = await User.findOne({ phone, isActive: true });
+  const user = await User.findOne({ where: { phone, isActive: true } });
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
@@ -266,7 +266,7 @@ const findUserId = asyncHandler(async (req, res) => {
 const findUserPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  const user = await User.findOne({ email, isActive: true });
+  const user = await User.findOne({ where: { email, isActive: true } });
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
