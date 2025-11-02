@@ -15,10 +15,16 @@ const options = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production'
-          ? 'https://api.meetingplatform.com'
-          : 'http://localhost:3000',
-        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+        url: 'https://api.waytomeet.site',
+        description: 'Production API Server',
+      },
+      {
+        url: 'https://waayto.com',
+        description: 'Production Main Server',
+      },
+      {
+        url: 'http://localhost:3000',
+        description: 'Development Server',
       },
     ],
     components: {
@@ -333,7 +339,12 @@ const options = {
   },
   apis: [
     './src/routes/*.js',        // 라우트 파일들 (기능만)
-    './src/docs/*.js',          // Swagger 문서 파일들 (문서만)
+    // './src/docs/*.js',          // Swagger 문서 파일들 (문서만)
+    './src/docs/userSwagger.js',      // ✅ 이건 OK
+    './src/docs/teamSwagger.js',      // ✅ 이건 OK
+    './src/docs/calendarSwagger.js',  // ✅ 이건 OK
+    './src/docs/inquirySwagger.js',   // ✅ 이건 OK
+    // './src/docs/minuteSwagger.js', // ❌ 주석 처리!
     './src/controllers/*.js',   // 컨트롤러 파일들 (필요한 경우)
     './src/models/*.js',        // 모델 파일들 (필요한 경우)
   ],

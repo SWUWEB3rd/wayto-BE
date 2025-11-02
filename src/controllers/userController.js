@@ -23,7 +23,7 @@ const signup = asyncHandler(async (req, res) => {
   const { email, password, name, phone } = req.body;
 
   // 이메일 중복 확인
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     return res.status(400).json({
       error: 'Email already exists',
@@ -33,7 +33,7 @@ const signup = asyncHandler(async (req, res) => {
 
   // 전화번호 중복 확인 (선택사항)
   if (phone) {
-    const existingPhone = await User.findOne({ phone });
+    const existingPhone = await User.findOne({ where: { phone } });
     if (existingPhone) {
       return res.status(400).json({
         error: 'Phone already exists',
@@ -51,12 +51,12 @@ const signup = asyncHandler(async (req, res) => {
   });
 
   // JWT 토큰 생성
-  const token = generateToken(user._id);
+  const token = generateToken(user.id);
 
   res.status(201).json({
     message: '회원가입이 완료되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -73,8 +73,10 @@ const signup = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // 사용자 조회 (비밀번호 포함)
-  const user = await User.findOne({ email, isActive: true }).select('+password');
+  // 사용자 조회 (비밀번호 포함) - Sequelize 방식으로 변경
+  const user = await User.findOne({
+    where: { email, isActive: true }
+  });
 
   if (!user || !(await user.comparePassword(password))) {
     return res.status(401).json({
@@ -88,12 +90,12 @@ const login = asyncHandler(async (req, res) => {
   await user.save();
 
   // JWT 토큰 생성
-  const token = generateToken(user._id);
+  const token = generateToken(user.id);
 
   res.json({
     message: '로그인되었습니다.',
     user: {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name,
       phone: user.phone,
@@ -123,7 +125,7 @@ const sendSignupVerification = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   // 이메일 중복 확인
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     return res.status(400).json({
       error: 'Email already exists',
@@ -196,7 +198,7 @@ const verifyEmailCode = asyncHandler(async (req, res) => {
 const checkEmailDuplicate = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ where: { email } });
 
   res.json({
     available: !existingUser,
@@ -212,7 +214,7 @@ const checkEmailDuplicate = asyncHandler(async (req, res) => {
 const checkPhoneDuplicate = asyncHandler(async (req, res) => {
   const { phone } = req.body;
 
-  const existingUser = await User.findOne({ phone });
+  const existingUser = await User.findOne({ where: { phone } });
 
   res.json({
     available: !existingUser,
@@ -237,7 +239,7 @@ const findUserId = asyncHandler(async (req, res) => {
     });
   }
 
-  const user = await User.findOne({ phone, isActive: true });
+  const user = await User.findOne({ where: { phone, isActive: true } });
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
@@ -264,7 +266,7 @@ const findUserId = asyncHandler(async (req, res) => {
 const findUserPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  const user = await User.findOne({ email, isActive: true });
+  const user = await User.findOne({ where: { email, isActive: true } });
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
@@ -291,13 +293,16 @@ const findUserPassword = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const getProfile = asyncHandler(async (req, res) => {
+  const { Team } = require('../models');
+
   const user = await User.findByPk(req.user.id, {
     include: [{
       model: Team,
       as: 'teams',
       attributes: ['id', 'name', 'description'],
       through: { attributes: [] }
-    }]
+    }],
+    attributes: { exclude: ['password'] }
   });
 
   res.json({
@@ -313,37 +318,16 @@ const getProfile = asyncHandler(async (req, res) => {
   });
 });
 
-// GET /api/users/me/teams/names
-const getMyTeamNames = asyncHandler(async (req, res) => {
-  // 내가 속한 팀 ID 목록
-  const memberships = await TeamMember.findAll({
-    where: { userId: req.user.id },
-    attributes: ['teamId'],
-  });
-
-  const teamIds = [...new Set(memberships.map(m => m.teamId))]; // 중복 제거
-  if (!teamIds.length) return res.json({ teamNames: [] });
-
-  // 팀 이름만 조회
-  const teams = await Team.findAll({
-    where: { id: teamIds },
-    attributes: ['name'],
-    order: [['name', 'ASC']],
-  });
-
-  const teamNames = teams.map(t => t.name);
-  return res.json({ teamNames });
-});
-
 /**
  * @desc    프로필 수정
  * @route   PATCH /api/users/me
  * @access  Private
  */
 const updateProfile = asyncHandler(async (req, res) => {
-  const { name, phone, email, currentPassword, newPassword } = req.body;
-  const user = await User.findByPk(req.user.id, { attributes: { include: ['password'] } });
-  
+  const { name, phone, currentPassword, newPassword } = req.body;
+
+  const user = await User.findByPk(req.user.id);
+
   // 비밀번호 변경 시 현재 비밀번호 확인
   if (newPassword) {
     if (!currentPassword) {
@@ -362,26 +346,7 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     user.password = newPassword;
   }
-  // 이메일 변경 요청 처리
-  if (email && email !== user.email) {
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({
-        error: 'Email already exists',
-        message: '이미 가입된 이메일입니다.',
-      });
-    }
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    verificationCodes.set(`emailChange_${user.id}`, {
-      code: verificationCode,
-      email,
-      expires: Date.now() + 5 * 60 * 1000,
-    });
-
-    await emailService.sendVerificationEmail(email, verificationCode);
-  }
   // 다른 필드 업데이트
   if (name) user.name = name;
   if (phone) user.phone = phone;
@@ -398,54 +363,6 @@ const updateProfile = asyncHandler(async (req, res) => {
     },
   });
 });
-/**
- * @desc    이메일 변경 인증
- * @route   POST /api/users/me/verify-email
- * @access  Private
- */
-const verifyEmailChange = asyncHandler(async (req, res) => {
-  const { code } = req.body;
-  const key = `emailChange_${req.user.id}`;
-  const stored = verificationCodes.get(key);
-
-  if (!stored) {
-    return res.status(400).json({
-      error: 'Verification code not found',
-      message: '인증번호를 다시 요청해주세요.',
-    });
-  }
-
-  if (Date.now() > stored.expires) {
-    verificationCodes.delete(key);
-    return res.status(400).json({
-      error: 'Verification code expired',
-      message: '인증번호가 만료되었습니다.',
-    });
-  }
-
-  if (stored.code !== code) {
-    return res.status(400).json({
-      error: 'Invalid verification code',
-      message: '인증번호가 올바르지 않습니다.',
-    });
-  }
-
-  const user = await User.findByPk(req.user.id);
-  user.email = stored.email;
-  await user.save();
-
-  verificationCodes.delete(key);
-
-  res.json({
-    message: '이메일이 업데이트되었습니다.',
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-    },
-  });
-});
 
 /**
  * @desc    회원 탈퇴
@@ -453,12 +370,15 @@ const verifyEmailChange = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const deleteAccount = asyncHandler(async (req, res) => {
- /* await User.findByIdAndUpdate(req.user.id, { isActive: false });
+  await User.update(
+    { isActive: false },
+    { where: { id: req.user.id } }
+  );
 
   res.json({
     message: '회원 탈퇴가 완료되었습니다.',
   });
-});*/
+
 const t = await sequelize.transaction();
 
   try {
@@ -478,6 +398,7 @@ const t = await sequelize.transaction();
     throw error;
   }
 });
+
 // 추가 컨트롤러들
 const sendIdPwVerification = asyncHandler(async (req, res) => {
   const { phone, type } = req.body;
@@ -522,12 +443,15 @@ const getPasswordResetPage = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
   const { token, newPassword } = req.body;
+  const { Op } = require('sequelize');
 
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
   const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
+    where: {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { [Op.gt]: new Date() }
+    }
   });
 
   if (!user) {
@@ -538,8 +462,8 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
   await user.save();
 
   res.json({

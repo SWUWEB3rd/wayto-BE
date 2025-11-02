@@ -43,8 +43,8 @@
  *         schema:
  *           type: string
  *           minLength: 2
- *         description: 검색어 (이름 또는 이메일)
- *         example: "홍길동"
+ *         description: 검색어
+ *         example: "hong@example.com"
  *     responses:
  *       200:
  *         description: 검색 결과
@@ -58,7 +58,7 @@
  *                   items:
  *                     type: object
  *                     properties:
- *                       _id:
+ *                       id:
  *                         type: string
  *                         example: "64f1b2c3d4e5f6789abcdef0"
  *                       name:
@@ -67,19 +67,6 @@
  *                       email:
  *                         type: string
  *                         example: "hong@example.com"
- *             example:
- *               users: [
- *                 {
- *                   "_id": "64f1b2c3d4e5f6789abcdef0",
- *                   "name": "홍길동",
- *                   "email": "hong@example.com"
- *                 },
- *                 {
- *                   "_id": "64f1b2c3d4e5f6789abcdef1",
- *                   "name": "홍철수",
- *                   "email": "hongcs@example.com"
- *                 }
- *               ]
  *       400:
  *         description: 잘못된 요청
  *         content:
@@ -166,11 +153,11 @@
  *           schema:
  *             type: object
  *             required:
- *               - user_id
+ *               - email
  *             properties:
- *               user_id:
+ *               email:
  *                 type: string
- *                 example: "64f1b2c3d4e5f6789abcdef0"
+ *                 example: "hong@example.com"
  *     responses:
  *       200:
  *         description: 팀원 추가 성공
@@ -214,6 +201,9 @@
  *         description: 팀 또는 멤버십 없음
  */
 
+
+// TODO: 경로 user_id? email?
+
 /**
  * @swagger
  * /api/teams/{team_id}/members/{user_id}:
@@ -227,7 +217,7 @@
  *         required: true
  *         schema: { type: string }
  *       - in: path
- *         name: user_id
+ *         name: email
  *         required: true
  *         schema: { type: string }
  *     responses:

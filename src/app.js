@@ -42,10 +42,30 @@ app.use(helmet({
   },
 }));
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: process.env.CLIENT_URL || 'http://localhost:3000',
+//   credentials: true,
+// }));
+
+const whitelist = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://localhost:5173',
+    'http://43.201.82.124',
+    'http://ec2-43-201-82-124.ap-northeast-2.compute.amazonaws.com',
+    'https://localhost:3000',
+    'https://43.201.82.124',
+    'https://ec2-43-201-82-124.ap-northeast-2.compute.amazonaws.com',
+    'https://waayto.com',
+    'http://waayto.com',
+    'https://waytomeet.site',
+    'http://waytomeet.site',
+    'https://www.waytomeet.site',
+    'http://www.waytomeet.site',
+    'https://api.waytomeet.site',
+    'http://api.waytomeet.site'
+];
+app.use(cors({ origin: whitelist, credentials: true }));
 
 // Rate limiting을 API 라우트에만 적용
 app.use('/api', limiter);
@@ -62,6 +82,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  swaggerUrl: '/api-docs-json',
   explorer: true,
   customCss: `
     .swagger-ui .topbar { display: none }
@@ -94,6 +115,12 @@ app.get('/api-docs.json', (req, res) => {
 });
 
 console.log(`📚 API Documentation available at http://localhost:${process.env.PORT || 3000}/api-docs`);
+
+// 👇 추가: 대시 버전도 열어줌 (호환용)
+app.get('/api-docs-json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
 
 
 // 헬스 체크 (루트 경로도 추가)
