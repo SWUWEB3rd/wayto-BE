@@ -7,10 +7,10 @@ const { asyncHandler } = require('../middleware/errorMiddleware');
  * @access  Private
  */
 const createTeam = asyncHandler(async (req, res) => {
-  const { title, description, teamtag } = req.body;
+  const { name, description, teamtag } = req.body;
 
   const team = await Team.create({
-    title,
+    name,
     description,
     teamtag,
     managerEmail: req.user.email,
@@ -60,7 +60,12 @@ const addMemberToTeam = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
 
   const team = await Team.findByPk(teamId);
+
   if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
+  
+  if (team.managerEmail !== req.user.email) {
+    return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
+  }
 
   const existing = await TeamMember.findOne({ where: { teamId, email } });
   if (existing) return res.status(400).json({ error: 'User already exists' });
@@ -103,13 +108,27 @@ const getTeamMembers = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    팀 상세 조회 및 설명 수정
- * @route   GET / PATCH /api/teams/:teamId
+ * @desc    팀 상세 조회
+ * @route   GET /api/teams/:teamId
  * @access  Private
  */
 const getTeamDetail = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
-  const { description } = req.body; // PATCH일 때만 사용
+
+  const team = await Team.findByPk(teamId);
+  if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
+
+  res.json({ team });
+});
+
+/**
+ * @desc    팀 설명 수정
+ * @route   PATCH /api/teams/:teamId
+ * @access  Private
+ */
+const updateTeamDetail = asyncHandler(async (req, res) => {
+  const { teamId } = req.params;
+  const { description } = req.body;
 
   const team = await Team.findByPk(teamId);
   if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
@@ -130,11 +149,25 @@ const getTeamDetail = asyncHandler(async (req, res) => {
 const getTeamMinutes = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
 
+  const team = await Team.findByPk(teamId);
+  if (!team) {
+    return res.status(404).json({ message: '존재하지 않는 팀입니다.' });
+  }
+
   // 팀 멤버인지 체크
   const member = await TeamMember.findOne({ where: { teamId, email: req.user.email } });
-  if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회 가능' });
+  if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회할 수 있습니다.' });
 
-  const minutes = await Minute.findAll({ where: { teamId } });
+  const minutes = await Minute.findAll({
+    where: { teamId },
+    include: [{
+      model: User,
+      as: 'author',
+      attributes: ['name', 'email']
+    }],
+    order: [['createdAt', 'DESC']], // 최신순 정렬
+    attributes: ['id', 'title', 'createdAt', 'updatedAt']
+  });
 
   res.json({ minutes });
 });
@@ -156,7 +189,7 @@ const leaveTeam = asyncHandler(async (req, res) => {
     where: { teamId, email: req.user.email },
   });
 
-  res.json({ message: '팀에서 탈퇴했습니다.' });
+  res.status(204).send();
 });
 
 
@@ -170,11 +203,16 @@ const kickMember = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
 
   const team = await Team.findByPk(teamId);
+  
   if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
+
+  if (team.managerEmail !== req.user.email) {
+    return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
+  }
 
   await TeamMember.destroy({ where: { teamId, email } });
 
-  res.json({ message: '팀원 제거 완료' });
+  res.status(204).send();
 });
 
 /**
@@ -183,24 +221,19 @@ const kickMember = asyncHandler(async (req, res) => {
  * @access  Private (팀장만)
  */
 const deleteTeam = asyncHandler(async (req, res) => {
-  const team = await Team.findById(req.params.teamId);
+  const team = await Team.findByPk(req.params.teamId);
   if (!team) {
     return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
   }
 
-  if (team.manager.toString() !== req.user.id) {
-    return res.status(403).json({ error: 'Unauthorized', message: '팀장만 삭제할 수 있습니다.' });
+  if (team.managerEmail !== req.user.email) {
+    return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
   }
 
-  await team.deleteOne();
+  await team.destroy(); // 팀 삭제
+  await TeamMember.destroy({ where: { teamId: req.params.teamId } });
 
-  // 모든 사용자 팀 목록에서 제거
-  await User.updateMany(
-    { teams: team._id },
-    { $pull: { teams: team._id } }
-  );
-
-  res.json({ message: '팀이 삭제되었습니다.' });
+  res.status(204).send();
 });
 
 module.exports = {
@@ -209,6 +242,7 @@ module.exports = {
   addMemberToTeam,
   getTeamMembers,
   getTeamDetail,
+  updateTeamDetail,
   getTeamMinutes,
   leaveTeam,
   kickMember,

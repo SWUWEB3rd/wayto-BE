@@ -11,22 +11,26 @@ router.post('/', authenticate, validate(teamSchema), teamController.createTeam);
 // 사용자 검색 (팀에 초대할 유저 탐색)
 router.get('/search', authenticate, teamController.searchUsers);
 
+// 팀 상세 조회 및 설명 수정
+router.get('/:teamId', authenticate, teamController.getTeamDetail);
+router.patch('/:teamId', authenticate, teamController.updateTeamDetail);
+
+// 팀 삭제
+router.delete('/:teamId', authenticate, teamController.deleteTeam);
+
 // 사용자 팀에 추가
-router.post('/:team_id/members', authenticate, teamController.addMemberToTeam);
+router.post('/:teamId/members', authenticate, teamController.addMemberToTeam);
 
 // 팀원 목록 조회
-router.get('/:team_id/members', authenticate, teamController.getTeamMembers);
-
-// 팀 상세 조회
-router.get('/:team_id', authenticate, teamController.getTeamDetail);
-
-// 팀 탈퇴 (본인이 탈퇴)
-router.delete('/:team_id/members/me', authenticate, teamController.leaveTeam);
+router.get('/:teamId/members', authenticate, teamController.getTeamMembers);
 
 // 팀원 강퇴 (팀장만 가능)
-router.delete('/:team_id/members/:user_id', authenticate, teamController.kickMember);
+router.delete('/:teamId/members', authenticate, teamController.kickMember);
 
-// 팀 삭제 (팀장만 가능)
-router.delete('/:team_id', authenticate, teamController.deleteTeam);
+// 팀 탈퇴 (본인이 탈퇴)
+router.delete('/:teamId/members/me', authenticate, teamController.leaveTeam);
+
+// 팀별 회의록 조회
+router.get('/:teamId/minutes', authenticate, teamController.getTeamMinutes);
 
 module.exports = router;
