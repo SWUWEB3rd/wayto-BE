@@ -545,32 +545,7 @@
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  */
-/**
- * @swagger
- * /api/users/me/teams/names:
- *   get:
- *     summary: 내가 속한 팀 이름 배열
- *     description: 현재 로그인한 사용자가 속한 팀들의 이름만 배열로 반환합니다.
- *     tags: [사용자 관리 (User Management)]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: 조회 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 teamNames:
- *                   type: array
- *                   items:
- *                     type: string
- *             example:
- *               teamNames: ["개발팀", "디자인팀"]
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
+
 
 /**
  * @swagger
