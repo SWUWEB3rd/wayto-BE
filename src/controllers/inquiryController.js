@@ -1,14 +1,12 @@
 // src/controllers/inquiryController.js
 const { Inquiry } = require('../models');                 // 필요한 것만
-const { createInquirySchema } = require('../validators/inquirySchemas'); // 생성용만
+// const { createInquirySchema } = require('../validators/inquirySchemas'); // 생성용만 - TODO: validator 구현 필요
 
 // 1) 1:1 문의 작성 (POST /api/inquiries)
 exports.createInquiry = async (req, res) => {
   try {
-    const { error, value } = createInquirySchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: 'BadRequest', message: error.message });
-    }
+    // TODO: validation 추가
+    const value = req.body;
 
     const inquiry = await Inquiry.create({
       userId: req.user.id,    // 인증 미들웨어에서 셋 된 사용자 ID
