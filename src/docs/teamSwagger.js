@@ -29,6 +29,31 @@
 
 /**
  * @swagger
+ * /api/teams:
+ * get:
+ *     summary: 내 팀 목록 조회
+ *     description: 현재 로그인한 사용자가 가입한 모든 팀의 목록을 조회합니다.
+ *     tags: [팀 (Team)]
+ *     security: [ { bearerAuth: [] } ]
+ *     responses:
+ *       200:
+ *         description: 팀 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 teams:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Team'
+ *                     description: 사용자가 속한 팀
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+
+/**
+ * @swagger
  * /api/teams/search:
  *   get:
  *     summary: 사용자 검색

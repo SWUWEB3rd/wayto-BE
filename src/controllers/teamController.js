@@ -20,13 +20,39 @@ const createTeam = asyncHandler(async (req, res) => {
   await TeamMember.create({
     teamId: team.id,
     email: req.user.email,
-    role: 'owner',
+    role: 'admin',
   });
 
   res.status(201).json({
     message: '팀이 생성되었습니다.',
     team,
   });
+});
+
+/**
+ * @desc    내 팀 목록 조회
+ * @route   GET /api/teams
+ * @access  Private
+ */
+const getMyTeams = asyncHandler(async (req, res) => {
+  const { email } = req.user;
+
+  // 사용자가 속한 TeamMember 항목들을 찾고, 연관된 Team 정보를 함께 가져옴
+  const memberships = await TeamMember.findAll({
+    where: { email: email },
+    include: [
+      {
+        model: Team,
+        required: true,
+      },
+    ],
+    // 팀 이름 오름차순 (필요시 수정 가능성 O)
+    order: [[Team, 'name', 'ASC']],
+  });
+
+  const teams = memberships.map((membership) => membership.Team);
+
+  res.status(200).json({ teams });
 });
 
 /**
@@ -238,6 +264,7 @@ const deleteTeam = asyncHandler(async (req, res) => {
 
 module.exports = {
   createTeam,
+  getMyTeams,
   searchUsers,
   addMemberToTeam,
   getTeamMembers,
