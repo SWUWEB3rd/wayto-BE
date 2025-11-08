@@ -35,11 +35,11 @@ const createTeam = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const getMyTeams = asyncHandler(async (req, res) => {
-  const { email } = req.user;
+  const { id: userId } = req.user;
 
   // 사용자가 속한 TeamMember 항목들을 찾고, 연관된 Team 정보를 함께 가져옴
   const memberships = await TeamMember.findAll({
-    where: { email: email },
+    where: { userId },
     include: [
       {
         model: Team,
