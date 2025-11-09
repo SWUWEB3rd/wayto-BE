@@ -5,7 +5,7 @@ const teamRoutes = require('./teamRoutes');
 // const meetingRoutes = require('./meetingRoutes');
 const minuteRoutes = require('./minuteRoutes');
 const inquiryRoutes = require('./inquiryRoutes');
-// const calendarRoutes = require('./calendarRoutes');
+const calendarRoutes = require('./calendarRoutes');
 // const whentomeetRoutes = require('./whentomeetRoutes');
 // const navigationRoutes = require('./navigationRoutes');
 
@@ -35,7 +35,7 @@ router.use('/teams', teamRoutes);
 // router.use('/meetings', meetingRoutes);
 router.use('/minutes', minuteRoutes);
 router.use('/inquiries', inquiryRoutes);
-// router.use('/calendar', calendarRoutes);
+router.use('/calendar', calendarRoutes);
 // router.use('/whentomeet', whentomeetRoutes);
 // router.use('/navigation', navigationRoutes);
 
