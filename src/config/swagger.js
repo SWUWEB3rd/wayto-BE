@@ -338,7 +338,7 @@ const options = {
     './src/docs/teamSwagger.js',      // ✅ 이건 OK
     './src/docs/calendarSwagger.js',  // ✅ 이건 OK
     './src/docs/inquirySwagger.js',   // ✅ 이건 OK
-    // './src/docs/minuteSwagger.js', // ❌ 주석 처리!
+    './src/docs/minuteSwagger.js', // 주석 처리 해제
     './src/controllers/*.js',   // 컨트롤러 파일들 (필요한 경우)
     './src/models/*.js',        // 모델 파일들 (필요한 경우)
   ],
