@@ -419,6 +419,8 @@
  *                 email: "user@example.com"
  *                 name: "홍길동"
  *                 phone: "010-1234-5678"
+ *                 birthday: "1990-01-01"
+ *                 gender: "male"
  *                 teams: [
  *                   {
  *                     id: "64f1b2c3d4e5f6789abcdef1",
@@ -453,6 +455,16 @@
  *                 type: string
  *                 pattern: '^010-?\d{4}-?\d{4}$'
  *                 example: "010-9876-5432"
+ *               birthday:
+ *                 type: string
+ *                 format: date
+ *                 description: "생년월일 (YYYY-MM-DD)"
+ *                 example: "1995-05-15"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 description: "성별"
+ *                 example: "female"
  *               currentPassword:
  *                 type: string
  *                 description: "비밀번호 변경 시 필요"
@@ -466,6 +478,8 @@
  *           example:
  *             name: "김철수"
  *             phone: "010-9876-5432"
+ *             birthday: "1995-05-15"
+ *             gender: "female"
  *     responses:
  *       200:
  *         description: 프로필 수정 성공
@@ -593,6 +607,7 @@
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [token, newPassword, confirmNewPassword]
  *               properties:
  *                 message:
  *                   type: string
@@ -633,6 +648,14 @@
  *                 pattern: '^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'
  *                 description: 새로운 비밀번호 (영문, 숫자, 특수문자 포함)
  *                 example: "NewPassword123!@#"
+ *               confirmNewPassword:
+ *                 type: string
+ *                 description: 새로운 비밀번호 재확인
+ *                 example: "NewPassword123!@#"
+ *            example:
+ *              token: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+ *              newPassword: "NewPassword123!@#"
+ *              confirmNewPassword: "NewPassword123!@#"
  *     responses:
  *       200:
  *         description: 비밀번호 재설정 성공
@@ -670,10 +693,27 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/PasswordChangeRequest'
+ *             type: object
+ *             required: [currentPassword, newPassword, confirmNewPassword]
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: "현재 비밀번호"
+ *                 example: "OldPass123!@#"
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 pattern: '^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'
+ *                 description: "새로운 비밀번호"
+ *                 example: "NewPass123!@#"
+ *               confirmNewPassword:
+ *                 type: string
+ *                 description: "새로운 비밀번호 재확인"
+ *                 example: "NewPass123!@#"
  *           example:
  *             currentPassword: "OldPass123!@#"
  *             newPassword: "NewPass123!@#"
+ *             confirmNewPassword: "NewPass123!@#"
  *     responses:
  *       200:
  *         description: 변경 성공
