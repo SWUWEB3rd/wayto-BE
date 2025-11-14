@@ -1,4 +1,5 @@
-const { Minutes, User, Meeting } = require('../models');
+const { Minutes, User, Meeting, MeetingAttendee } = require('../models');
+const { Op } = require('sequelize');
 
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
@@ -59,6 +60,51 @@ const createMinute = asyncHandler(async (req, res) => {
     message: '회의록이 작성되었습니다.',
     minute,
   });
+});
+
+/**
+ * @desc     예정된 회의 목록 조회
+ * @route    GET /api/minutes/upcoming
+ * @access   Private
+ */
+const getUpcomingMeetings = asyncHandler(async (req, res) => {
+  const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' 형식
+
+  const upcomingMeetings = await Meeting.findAll({
+    attributes: ['id', 'title', 'meetingDate', 'startTime', 'meetingUrl'],
+    where: {
+      status: 'scheduled',
+      meetingDate: {
+        [Op.gte]: today, // 오늘 날짜보다 크거나 같은
+      },
+    },
+    include: [
+      {
+        model: MeetingAttendee,
+        where: {
+          userId: req.user.id, // 현재 로그인한 사용자가 참석자인 경우
+        },
+        required: true,
+        attributes: [], // MeetingAttendee 정보는 필요 없으므로 빈 배열로 설정
+      },
+    ],
+    order: [
+      ['meetingDate', 'ASC'], // 날짜 오름차순
+      ['startTime', 'ASC'],  // 시간 오름차순
+    ],
+    limit: 3, // 3개만 조회
+  });
+
+  const formattedMeetings = upcomingMeetings.map(meeting => {
+    return {
+      meetingId: meeting.id, // "입장하기" 버튼이 회의록 작성 페이지로 연결할 때 사용할 ID
+      title: meeting.title,
+      meetingDateTime: `${meeting.meetingDate}T${meeting.startTime}`, // 날짜와 시간을 조합
+      meetingLink: meeting.meetingUrl // Meeting 모델의 meetingUrl 사용
+    };
+  });
+
+  res.status(200).json(formattedMeetings);
 });
 
 /**
@@ -157,6 +203,7 @@ const deleteMinute = asyncHandler(async (req, res) => {
 
 module.exports = {
   createMinute,
+  getUpcomingMeetings,
   getMinute,
   updateMinute,
   deleteMinute,
