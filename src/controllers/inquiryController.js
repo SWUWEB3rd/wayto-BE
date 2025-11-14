@@ -10,7 +10,7 @@ exports.createInquiry = async (req, res) => {
 
     const inquiry = await Inquiry.create({
       userId: req.user.id,    // 인증 미들웨어에서 셋 된 사용자 ID
-      category: value.category,
+      category: value.category || 'other',
       title: value.title,
       content: value.content,
       // status는 모델 default 사용: e.g. 'pending' 또는 'open'
