@@ -1,54 +1,29 @@
-const { Inquiry } = require('../models');
+// src/controllers/inquiryController.js
+const { Inquiry } = require('../models');                 // 필요한 것만
+// const { createInquirySchema } = require('../validators/inquirySchemas'); // 생성용만 - TODO: validator 구현 필요
 
-//문의작성
+// 1) 1:1 문의 작성 (POST /api/inquiries)
 exports.createInquiry = async (req, res) => {
   try {
-    const { title, content } = req.body;
-    const userId = req.user.id;
+    // TODO: validation 추가
+    const value = req.body;
 
-    const newInquiry = await Inquiry.create({
-      user: userId,
-      title,
-      content,
+    const inquiry = await Inquiry.create({
+      userId: req.user.id,    // 인증 미들웨어에서 셋 된 사용자 ID
+      category: value.category,
+      title: value.title,
+      content: value.content,
+      // status는 모델 default 사용: e.g. 'pending' 또는 'open'
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: '문의가 등록되었습니다.',
-      inquiry: newInquiry,
+      id: inquiry.id,
+      status: inquiry.status,
+      createdAt: inquiry.createdAt,
     });
-  } catch (error) {
-    res.status(500).json({ message: '서버 오류', error });
-  }
-};
-
-//문의내역조회
-exports.getInquiry = async (req, res) => {
-  try {
-    const inquiry = await Inquiry.findOne({
-      _id: req.params.inquiry_id,
-      user: req.user.id,
-    }).populate('user', 'name email');
-
-    if (!inquiry) {
-      return res.status(404).json({ message: '문의 내역이 없습니다.' });
-    }
-
-    res.status(200).json({ inquiry });
-  } catch (error) {
-    res.status(500).json({ message: '서버 오류', error });
-  }
-};
-
-//내가 작성한 문의 조회
-exports.getMyInquiries = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const inquiries = await Inquiry.find({ user: userId })
-      .sort({ createdAt: -1 }); // 최신순 정렬
-
-    res.status(200).json({ inquiries });
-  } catch (error) {
-    res.status(500).json({ message: '서버 오류', error });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'ServerError', message: '서버 오류' });
   }
 };

@@ -19,9 +19,12 @@ const authenticate = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.userId).select('-password');
+    // Sequelize 메서드로 변경: findByPk 사용
+    const user = await User.findByPk(decoded.userId, {
+      attributes: { exclude: ['password'] }
+    });
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.status(401).json({
         error: 'Invalid token',
         message: '유효하지 않은 토큰입니다.',
@@ -65,9 +68,13 @@ const optionalAuth = async (req, res, next) => {
 
     const token = authHeader.substring(7);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
 
-    if (user) {
+    // Sequelize 메서드로 변경
+    const user = await User.findByPk(decoded.userId, {
+      attributes: { exclude: ['password'] }
+    });
+
+    if (user && user.isActive) {
       req.user = user;
     }
 

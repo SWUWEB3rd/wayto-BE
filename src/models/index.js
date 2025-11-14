@@ -248,8 +248,8 @@ const MeetingAttendee = sequelize.define('MeetingAttendee', {
   ]
 });
 
-// 6. Minute 모델 (회의록)
-const Minute = sequelize.define('Minutes', {
+// 6. Minutes 모델 (회의록)
+const Minutes = sequelize.define('Minutes', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -293,6 +293,16 @@ const Minute = sequelize.define('Minutes', {
     type: DataTypes.INTEGER,
     allowNull: false,
     field: 'author_id'
+  },
+  // 팀별 회의록 조회 기능을 위해 필드 추가
+  teamId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'team_id',
+    references: {
+      model: 'teams',
+      key: 'id'
+    }
   },
 
   // 기존 데이터 (남길지 뺄지 결정)
@@ -875,7 +885,7 @@ module.exports = {
   TeamMember,
   Meeting,
   MeetingAttendee,
-  Minute,
+  Minutes,
   WhenToMeet,
   WhenToMeetSlot,
   WhenToMeetResponse,
