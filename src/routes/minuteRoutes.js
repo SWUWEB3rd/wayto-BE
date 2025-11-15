@@ -8,6 +8,9 @@ const router = express.Router();
 // 회의록 작성
 router.post('/', authenticate, validate(minuteSchema), minuteController.createMinute);
 
+// 예정된 회의 목록 조회
+router.get('/upcoming', authenticate, minuteController.getUpcomingMeetings);
+
 // 회의록 상세 조회
 router.get('/:minuteId', authenticate, minuteController.getMinute);
 
