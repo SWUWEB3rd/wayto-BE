@@ -311,6 +311,8 @@ const getProfile = asyncHandler(async (req, res) => {
       email: user.email,
       name: user.name,
       phone: user.phone,
+      birthday: user.birthday,
+      gender: user.gender,  
       teams: user.teams,
       createdAt: user.createdAt,
       lastLoginAt: user.lastLoginAt,
@@ -350,6 +352,8 @@ const updateProfile = asyncHandler(async (req, res) => {
   // 다른 필드 업데이트
   if (name) user.name = name;
   if (phone) user.phone = phone;
+  if (birthday !== undefined) user.birthday = birthday;
+  if (gender !== undefined) user.gender = gender; 
 
   await user.save();
 
@@ -360,6 +364,8 @@ const updateProfile = asyncHandler(async (req, res) => {
       email: user.email,
       name: user.name,
       phone: user.phone,
+      birthday: user.birthday,
+      gender: user.gender, 
     },
   });
 });
