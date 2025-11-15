@@ -694,22 +694,22 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [currentPassword, newPassword, confirmNewPassword]
- *             properties:
- *               currentPassword:
- *                 type: string
- *                 description: "현재 비밀번호"
- *                 example: "OldPass123!@#"
- *               newPassword:
- *                 type: string
- *                 minLength: 8
- *                 pattern: '^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'
- *                 description: "새로운 비밀번호"
- *                 example: "NewPass123!@#"
- *               confirmNewPassword:
- *                 type: string
- *                 description: "새로운 비밀번호 재확인"
- *                 example: "NewPass123!@#"
+ *             required: [currentPassword, newPassword, confirmNewPassword]
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: "현재 비밀번호"
+ *                 example: "OldPass123!@#"
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 pattern: '^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'
+ *                 description: "새로운 비밀번호"
+ *                 example: "NewPass123!@#"
+ *               confirmNewPassword:
+ *                 type: string
+ *                 description: "새로운 비밀번호 재확인"
+ *                 example: "NewPass123!@#"
  *           example:
  *             currentPassword: "OldPass123!@#"
  *             newPassword: "NewPass123!@#"

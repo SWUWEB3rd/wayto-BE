@@ -18,16 +18,23 @@
  *       - in: query
  *         name: year
  *         required: true
- *         schema: { type: integer, example: 2025 }
+ *         schema:
+ *           type: integer
+ *           example: 2025
  *         description: 조회 연도 (YYYY)
  *       - in: query
  *         name: month
  *         required: true
- *         schema: { type: integer, minimum: 1, maximum: 12, example: 8 }
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 12
+ *           example: 8
  *         description: 조회 월 (1~12)
  *       - in: query
  *         name: teamId
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *         description: 특정 팀만 필터링(선택)
  *     responses:
  *       200:
@@ -66,14 +73,24 @@
  *     CalendarEvent:
  *       type: object
  *       properties:
- *         id:        { type: string, example: "evt_1001" }
- *         title:     { type: string, example: "백엔드 스프린트 킥오프" }
+ *         id:
+ *           type: string
+ *           example: "evt_1001"
+ *         title:
+ *           type: string
+ *           example: "백엔드 스프린트 킥오프"
  *         team:
  *           type: object
  *           properties:
- *             name: { type: string, example: "개발팀" }
- *         startAt:   { type: string, example: "2025-08-05T10:00:00+09:00" }
- *         hasMinutes:{ type: boolean, example: true }
+ *             name:
+ *               type: string
+ *               example: "개발팀"
+ *         startAt:
+ *           type: string
+ *           example: "2025-08-05T10:00:00+09:00"
+ *         hasMinutes:
+ *           type: boolean
+ *           example: true
  *
  *     CalendarMonthlyResponse:
  *       type: object
@@ -81,8 +98,12 @@
  *         range:
  *           type: object
  *           properties:
- *             start: { type: string, example: "2025-08-01" }
- *             end:   { type: string, example: "2025-08-31" }
+ *             start:
+ *               type: string
+ *               example: "2025-08-01"
+ *             end:
+ *               type: string
+ *               example: "2025-08-31"
  *         events:
  *           type: array
  *           items:

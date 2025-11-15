@@ -60,7 +60,7 @@
  *                     example: '2025-11-20T14:00:00'
  *                   meetingLink:
  *                     type: string
- *                     description: 회의 링크 (예: Google Meet, Zoom)
+ *                     description: '회의 링크 (예: Google Meet, Zoom)'
  *                     example: 'https://meet.google.com/xyz-abc'
  *       '401':
  *         $ref: '#/components/responses/UnauthorizedError'
@@ -124,8 +124,8 @@
  *   patch:
  *     summary: 회의록 수정
  *     tags: [회의록 (Minute)]
- *     security:
- *       - bearerAuth: []
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: minuteId
@@ -141,18 +141,18 @@
  *     responses:
  *       200:
  *         description: 수정 성공
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: 수정 권한 없음 (작성자가 아닌 경우)
- *       404:
- *         description: 존재하지 않는 회의록
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 수정 권한 없음 (작성자가 아닌 경우)
+ *       404:
+ *         description: 존재하지 않는 회의록
  *
  *   delete:
  *     summary: 회의록 삭제
  *     tags: [회의록 (Minute)]
- *     security:
- *       - bearerAuth: []
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: minuteId
@@ -162,10 +162,10 @@
  *     responses:
  *       204:
  *         description: 삭제 완료
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: 삭제 권한 없음 (작성자가 아닌 경우)
- *       404:
- *         description: 존재하지 않는 회의록
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 삭제 권한 없음 (작성자가 아닌 경우)
+ *       404:
+ *         description: 존재하지 않는 회의록
  */

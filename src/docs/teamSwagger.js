@@ -30,11 +30,12 @@
 /**
  * @swagger
  * /api/teams:
- * get:
+ *   get:
  *     summary: 내 팀 목록 조회
  *     description: 현재 로그인한 사용자가 가입한 모든 팀의 목록을 조회합니다.
  *     tags: [팀 (Team)]
- *     security: [ { bearerAuth: [] } ]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: 팀 목록 조회 성공
@@ -111,7 +112,8 @@
  *   get:
  *     summary: 특정 팀 정보 조회
  *     tags: [팀 (Team)]
- *     security: [ { bearerAuth: [] } ]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: teamId
@@ -188,7 +190,8 @@
  *       - in: path
  *         name: teamId
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         content:
@@ -250,25 +253,29 @@
  *   delete:
  *     summary: 팀원 강퇴 (팀장만)
  *     tags: [팀 (Team)]
- *     security: [ { bearerAuth: [] } ]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: teamId
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *               required: [email]
- *               properties:
- *                 email:
- *                   type: string
- *                   example: "kickmember@example.com"
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "kickmember@example.com"
  *     responses:
- *       204: { description: 강퇴 완료 }
+ *       204:
+ *         description: 강퇴 완료
  */
 
 /**
@@ -314,35 +321,35 @@
  *           application/json:
  *             schema:
  *               type: object
- *                 properties:
- *                   minutes:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                           description: 회의록 ID
- *                         title:
- *                           type: string
- *                           descripton: 회의록 제목
- *                         createdAt:
- *                           type: string
- *                           format: date-time
- *                           description: 생성 일시
- *                         updatedAt:
- *                           type: string
- *                           format: date-time
- *                           description: 수정 일시
- *                         author:
- *                           type: object
- *                           properties:
- *                             name:
- *                               type: string
- *                               description: 작성자 이름
- *                               email:
- *                                 type: string
- *                                 description: 작성자 이메일
+ *               properties:
+ *                 minutes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: 회의록 ID
+ *                       title:
+ *                         type: string
+ *                         description: 회의록 제목
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: 생성 일시
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: 수정 일시
+ *                       author:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             description: 작성자 이름
+ *                           email:
+ *                             type: string
+ *                             description: 작성자 이메일
  *                         example:
  *                           minutes:
  *                             - id: 101
