@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 
+const useEmailMock = process.env.USE_EMAIL_MOCK !== 'false';
+
 // 메일 전송 설정
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE || 'gmail',
@@ -116,7 +118,6 @@ const sendPasswordResetEmailMock = async (email, resetUrl) => {
 };
 
 module.exports = {
-  // 개발환경에서는 모의 함수 사용, 운영환경에서는 실제 함수 사용
-  sendVerificationEmail: process.env.NODE_ENV === 'production' ? sendVerificationEmail : sendVerificationEmailMock,
-  sendPasswordResetEmail: process.env.NODE_ENV === 'production' ? sendPasswordResetEmail : sendPasswordResetEmailMock,
+  sendVerificationEmail: useEmailMock ? sendVerificationEmailMock : sendVerificationEmail,
+  sendPasswordResetEmail: useEmailMock ? sendPasswordResetEmailMock : sendPasswordResetEmail,
 };
