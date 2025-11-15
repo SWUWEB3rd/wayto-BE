@@ -8,6 +8,9 @@ const router = express.Router();
 // 팀 생성
 router.post('/', authenticate, validate(teamSchema), teamController.createTeam);
 
+// 내 팀 목록 조회
+router.get('/', authenticate, teamController.getMyTeams);
+
 // 사용자 검색 (팀에 초대할 유저 탐색)
 router.get('/search', authenticate, teamController.searchUsers);
 

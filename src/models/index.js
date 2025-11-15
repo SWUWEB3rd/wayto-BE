@@ -116,7 +116,7 @@ const TeamMember = sequelize.define('TeamMember', {
     field: 'user_id'
   },
   role: {
-    type: DataTypes.ENUM('admin', 'member'),
+    type: DataTypes.ENUM('owner', 'admin', 'member'),
     defaultValue: 'member'
   },
   joinedAt: {
