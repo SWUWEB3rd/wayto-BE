@@ -139,6 +139,7 @@
  *     summary: 팀 설명 수정
  *     tags: [팀 (Team)]
  *     parameters:
+ *       - in: path
  *         name: teamId
  *         required: true
  *         schema:
