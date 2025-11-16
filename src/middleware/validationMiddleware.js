@@ -116,6 +116,10 @@ const createTeamSchema = Joi.object({
   description: Joi.string().max(200).optional().messages({
     'string.max': '팀 설명은 최대 200자까지 입력 가능합니다.',
   }),
+  // 팀태그 유효성 검사 추가
+  teamtag: Joi.string().max(50).optional().allow('').messages({
+    'string.max': '팀 태그는 최대 50자까지 입력 가능합니다.',
+  }),
 });
 
 // 회의록 작성 검증 스키마
