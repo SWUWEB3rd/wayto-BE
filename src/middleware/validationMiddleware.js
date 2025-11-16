@@ -149,6 +149,6 @@ module.exports = {
   commonSchemas,
   signupSchema,
   loginSchema,
-  createTeamSchema,
+  teamSchema: createTeamSchema,
   minuteSchema,
 };
