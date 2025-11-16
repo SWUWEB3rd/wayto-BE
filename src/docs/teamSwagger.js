@@ -18,6 +18,10 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/TeamCreateRequest'
+ *           example:
+ *             name: "1분기 신규 프로젝트팀"
+ *             description: "신규 프로젝트 런칭을 위한 팀입니다."
+ *             teamtag: "프로젝트A"
  *     responses:
  *       201:
  *         description: 팀 생성 성공
