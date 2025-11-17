@@ -203,6 +203,11 @@
  *                 creatorId: 15
  *       404:
  *         description: 존재하지 않는 팀
+ */
+
+/**
+ * @swagger
+ * /api/teams/{teamId}:
  *   patch:
  *     summary: 팀 설명 수정
  *     tags: [팀 (Team)]
@@ -245,6 +250,11 @@
  *                 creatorId: 15
  *       404:
  *         description: 존재하지 않는 팀
+ */
+
+/**
+ * @swagger
+ * /api/teams/{teamId}:
  *   delete:
  *     summary: 팀 삭제 (팀장만 가능)
  *     tags: [팀 (Team)]
