@@ -111,6 +111,20 @@
  *                   items:
  *                     $ref: '#/components/schemas/Team'
  *                     description: 사용자가 속한 팀
+ *             example:
+ *               teams:
+ *                 - id: 9
+ *                   name: "1분기 신규 프로젝트팀"
+ *                   description: "신규 프로젝트 런칭을 위한 팀입니다."
+ *                   teamtag: "프로젝트A"
+ *                   managerEmail: "newuser11@example.com"
+ *                   creatorId: 15
+ *                 - id: 12
+ *                   name: "2분기 기획팀"
+ *                   description: "기획팀입니다."
+ *                   teamtag: "기획"
+ *                   managerEmail: "newuser11@example.com"
+ *                   creatorId: 15
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
