@@ -830,99 +830,47 @@ RefreshToken.findValidToken = async function(token) {
   });
 };
 
-// // ===== 데이터베이스 동기화 =====
-// const syncDatabase = async (force = false) => {
-//   try {
-//     // 관계 설정 초기화
-//     initializeAssociations();
-
-//     // 데이터베이스 동기화
-//     await sequelize.sync({ force });
-//     console.log('✅ PostgreSQL 데이터베이스 동기화 완료');
-
-//     // 초기 데이터 생성 (force=true인 경우에만)
-//     if (force) {
-//       await createInitialData();
-//     }
-//   } catch (error) {
-//     console.error('❌ 데이터베이스 동기화 실패:', error);
-//     throw error;
-//   }
-// };
-
-// ===== 데이터베이스 동기화 (수정됨) =====
-const syncDatabase = async () => {
+// ===== 데이터베이스 동기화 =====
+const syncDatabase = async (force = false) => {
   try {
     // 관계 설정 초기화
     initializeAssociations();
 
-    // 데이터베이스 동기화 (alter: true)
-    await sequelize.sync({ alter: true }); // force -> alter
-    console.log('✅ PostgreSQL 데이터베이스 동기화 완료 (alter: true)');
+    // 데이터베이스 동기화
+    await sequelize.sync({ force });
+    console.log('✅ PostgreSQL 데이터베이스 동기화 완료');
 
-    // 초기 데이터 생성 (if문 밖으로 이동)
-    await createInitialData();
-    
+    // 초기 데이터 생성 (force=true인 경우에만)
+    if (force) {
+      await createInitialData();
+    }
   } catch (error) {
     console.error('❌ 데이터베이스 동기화 실패:', error);
     throw error;
   }
 };
 
-// // 초기 데이터 생성
-// const createInitialData = async () => {
-//   try {
-//     // 관리자 계정 생성
-//     const admin = await User.create({
-//       email: 'admin@wayto.com',
-//       password: 'Admin123!',
-//       name: '시스템 관리자',
-//       isActive: true
-//     });
-
-//     // 관리자 설정 생성
-//     await UserSettings.create({
-//       userId: admin.id,
-//       timezone: 'Asia/Seoul',
-//       language: 'ko'
-//     });
-
-//     console.log('✅ 초기 데이터 생성 완료');
-//     console.log('   📧 Email: admin@wayto.com');
-//     console.log('   🔑 Password: Admin123!');
-//   } catch (error) {
-//     console.error('❌ 초기 데이터 생성 실패:', error);
-//   }
-// };
-
-// 초기 데이터 생성 (수정됨)
+// 초기 데이터 생성
 const createInitialData = async () => {
   try {
-    // 관리자 계정 생성 (findOrCreate로 변경)
-    const [admin, created] = await User.findOrCreate({
-      where: { email: 'admin@wayto.com' }, // 이 이메일로 사용자를 찾고
-      defaults: { // 없으면 이 정보로 생성
-        password: 'Admin123!',
-        name: '시스템 관리자',
-        isActive: true
-      }
+    // 관리자 계정 생성
+    const admin = await User.create({
+      email: 'admin@wayto.com',
+      password: 'Admin123!',
+      name: '시스템 관리자',
+      isActive: true
     });
 
-    // 방금 관리자가 새로 생성된 경우에만 설정도 생성
-    if (created) {
-      await UserSettings.create({
-        userId: admin.id,
-        timezone: 'Asia/Seoul',
-        language: 'ko'
-      });
-      
-      console.log('✅ 초기 데이터 생성 완료');
-      console.log('   📧 Email: admin@wayto.com');
-      console.log('   🔑 Password: Admin123!');
-    } else {
-      console.log('✅ 관리자 계정이 이미 존재하여 초기 데이터 생성을 건너뜁니다.');
-    }
+    // 관리자 설정 생성
+    await UserSettings.create({
+      userId: admin.id,
+      timezone: 'Asia/Seoul',
+      language: 'ko'
+    });
 
+    console.log('✅ 초기 데이터 생성 완료');
+    console.log('   📧 Email: admin@wayto.com');
+    console.log('   🔑 Password: Admin123!');
   } catch (error) {
     console.error('❌ 초기 데이터 생성 실패:', error);
   }
