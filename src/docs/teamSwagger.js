@@ -56,11 +56,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Team'
- */
-
-/**
- * @swagger
- * /api/teams:
+ * 
  *   get:
  *     summary: 내 팀 목록 조회
  *     description: 현재 로그인한 사용자가 가입한 모든 팀의 목록을 조회합니다.
@@ -116,8 +112,8 @@
  *                     type: object
  *                     properties:
  *                       id:
- *                         type: string
- *                         example: "64f1b2c3d4e5f6789abcdef0"
+ *                         type: integer
+ *                         example: 1
  *                       name:
  *                         type: string
  *                         example: "홍길동"
@@ -161,7 +157,6 @@
  *               $ref: '#/components/schemas/Team'
  *       404:
  *         description: 존재하지 않는 팀
- * 
  *   patch:
  *     summary: 팀 설명 수정
  *     tags: [팀 (Team)]
@@ -191,7 +186,6 @@
  *               $ref: '#/components/schemas/Team'
  *       404:
  *         description: 존재하지 않는 팀
- * 
  *   delete:
  *     summary: 팀 삭제 (팀장만 가능)
  *     tags: [팀 (Team)]
@@ -206,7 +200,7 @@
  *       204:
  *         description: 삭제 완료
  *       403:
- *         description: 권한 없음
+ *         description: 권한 없음 (팀장 아님)
  *       404:
  *         description: 존재하지 않는 팀
  */
@@ -226,6 +220,7 @@
  *           type: string
  *     responses:
  *       200:
+ *         description: 팀원 목록 반환
  *         content:
  *           application/json:
  *             schema:
@@ -234,8 +229,17 @@
  *                 members:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/TeamMember'
- * 
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *                         enum: [owner, admin, member]
+ *       404:
+ *         description: 존재하지 않는 팀
  *   post:
  *     summary: 팀원 추가
  *     description: 검색된 사용자를 팀에 추가 (팀장만 가능)
@@ -248,7 +252,7 @@
  *         required: true
  *         schema:
  *           type: string
- *         description: 팀 ID
+ *           description: 팀 ID
  *     requestBody:
  *       required: true
  *       content:
@@ -264,24 +268,12 @@
  *     responses:
  *       200:
  *         description: 팀원 추가 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
  *       400:
- *         description: 잘못된 요청
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
+ *         description: 이미 존재하는 팀원
  *       403:
  *         description: 권한 없음 (팀장 아님)
- * 
+ *       404:
+ *         description: 존재하지 않는 팀 또는 존재하지 않는 사용자
  *   delete:
  *     summary: 팀원 강퇴 (팀장만)
  *     tags: [팀 (Team)]
@@ -308,6 +300,10 @@
  *     responses:
  *       204:
  *         description: 강퇴 완료
+ *       403:
+ *         description: 권한 없음 (팀장 아님)
+ *       404:
+ *         description: 존재하지 않는 팀 또는 강퇴할 사용자를 찾을 수 없음
  */
 
 /**
@@ -315,7 +311,7 @@
  * /api/teams/{teamId}/members/me:
  *   delete:
  *     summary: 팀 탈퇴 (본인)
- *     description: 현재 로그인한 사용자를 팀에서 제거
+ *     description: 현재 로그인한 사용자를 팀에서 제거 (팀장 탈퇴 불가)
  *     tags: [팀 (Team)]
  *     security:
  *       - bearerAuth: []
@@ -328,6 +324,10 @@
  *     responses:
  *       204:
  *         description: 탈퇴 완료
+ *       403:
+ *         description: 권한 없음 (팀장은 탈퇴할 수 없음)
+ *       404:
+ *         description: 존재하지 않는 팀
  */
 
 /**
