@@ -49,6 +49,48 @@
  *           description: "회의록 본문"
  *           minLength: 1
  *           example: "주요 안건: ..."
+ *     Minute:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: "회의록 고유 ID"
+ *         title:
+ *           type: string
+ *           description: "회의록 제목"
+ *         attendees:
+ *           type: string
+ *           description: "참석자"
+ *         meetingDate:
+ *           type: string
+ *           format: date
+ *           description: "회의 날짜"
+ *         location:
+ *           type: string
+ *           description: "회의 장소"
+ *         meetingLink:
+ *           type: string
+ *           format: uri
+ *           description: "회의 링크"
+ *         content:
+ *           type: string
+ *           description: "회의록 본문"
+ *         meetingId:
+ *           type: integer
+ *           description: "회의 ID"
+ *         authorId:
+ *           type: integer
+ *           description: "작성자 ID"
+ *         metadata:
+ *           type: object
+ *           description: "메타데이터"
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: "생성 시각"
+ *         update_at:
+ *           type: string
+ *           description: "수정 시각"
  *     MinuteUpdateRequest:
  *       type: object
  *       properties:
@@ -177,7 +219,11 @@
  *               message: "회의록이 없습니다. 작성 페이지로 이동하세요."
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- * 
+ */
+
+/**
+ * @swagger
+ * /api/minutes/{minuteId}:
  *   patch:
  *     summary: "회의록 수정"
  *     tags: [회의록 (Minute)]
@@ -204,7 +250,11 @@
  *         description: "수정 권한 없음 (작성자가 아닌 경우)"
  *       404:
  *         description: "존재하지 않는 회의록"
- *
+ */
+
+/**
+ * @swagger
+ * /api/minutes/{minuteId}:
  *   delete:
  *     summary: "회의록 삭제"
  *     tags: [회의록 (Minute)]
