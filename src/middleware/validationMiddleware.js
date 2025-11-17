@@ -124,6 +124,7 @@ const createTeamSchema = Joi.object({
 
 // 회의록 작성 검증 스키마
 const minuteSchema = Joi.object({
+  meetingId: Joi.number().integer().required(),
   title: Joi.string()
     .min(1)
     .max(100)
@@ -133,19 +134,50 @@ const minuteSchema = Joi.object({
       'string.max': '회의록 제목은 최대 100자까지 입력 가능합니다.',
       'any.required': '회의록 제목은 필수 항목입니다.',
     }),
-  content: Joi.string().optional(),
-  todos: Joi.array().items(
-    Joi.object({
-      task: Joi.string().required(),
-      assignee: Joi.string().optional(),
-      dueDate: Joi.date().optional(),
-    })
-  ).optional(),
-  links: Joi.array().items(
-    Joi.string().uri().messages({
+  attendees: Joi.string().allow(null, ''), // 또는 Joi.array()
+  meetingDate: Joi.date().allow(null),
+  location: Joi.string().allow(null, ''),
+  meetingLink: Joi.string()
+    .uri()
+    .allow(null, '') // 빈 값이나 null 허용
+    .messages({
       'string.uri': '올바른 URL 형식이 아닙니다.',
+    }),
+  content: Joi.string()
+    .min(1)
+    .required()
+    .messages({
+      'string.min': '회의록 본문은 1자 이상이어야 합니다.',
+      'any.required': '회의록 본문은 필수 항목입니다.',
+    }),
+});
+
+// 회의록 수정 검증 스키마
+const minuteUpdateSchema = Joi.object({
+  title: Joi.string()
+    .min(1)
+    .max(100)
+    .optional() 
+    .messages({
+      'string.min': '회의록 제목은 1자 이상이어야 합니다.',
+      'string.max': '회의록 제목은 최대 100자까지 입력 가능합니다.',
+    }),
+  attendees: Joi.string().allow(null, '').optional(),
+  meetingDate: Joi.date().allow(null).optional(),
+  location: Joi.string().allow(null, '').optional(),
+  meetingLink: Joi.string()
+    .uri()
+    .allow(null, '')
+    .optional()
+    .messages({
+      'string.uri': '올바른 URL 형식이 아닙니다.',
+    }),
+  content: Joi.string()
+    .min(1)
+    .optional()
+    .messages({
+      'string.min': '회의록 본문은 1자 이상이어야 합니다.',
     })
-  ).optional(),
 });
 
 module.exports = {
@@ -155,4 +187,5 @@ module.exports = {
   loginSchema,
   teamSchema: createTeamSchema,
   minuteSchema,
+  minuteUpdateSchema,
 };

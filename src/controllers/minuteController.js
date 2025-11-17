@@ -158,16 +158,21 @@ const updateMinute = asyncHandler(async (req, res) => {
 
   const {
     title,
-    // attendees,
-    // meetingDate,
-    // location,
-    // meetingLink,
-    content,
-    // todos,
-    // links
+    attendees,
+    meetingDate,
+    location,
+    meetingLink,
+    content
   } = req.body;
 
-  const updatedMinute = await minute.update({ title, content });
+  const updatedMinute = await minute.update({
+    title,
+    attendees,
+    meetingDate,
+    location,
+    meetingLink,
+    content
+  });
 
   res.status(200).json({
     message: '회의록이 수정되었습니다.',

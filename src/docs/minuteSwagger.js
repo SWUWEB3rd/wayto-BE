@@ -90,25 +90,16 @@
  *             schema:
  *               $ref: '#/components/schemas/MeetingMinutesResponse'
  *             example:
- *               meetingId: "m_1001"
  *               title: "백엔드 스프린트 킥오프"
- *               createdBy:
- *                 id: "u_01"
- *                 name: "홍길동"
  *               attendees:
  *                 - id: "u_01"
  *                   name: "홍길동"
  *                 - id: "u_02"
  *                   name: "김철수"
- *               startedAt: "2025-08-05T10:00:00Z"
- *               endedAt: "2025-08-05T11:00:00Z"
- *               decisions:
- *                 - "회원 관리 API 스펙 확정"
- *               actionItems:
- *                 - owner: "u_02"
- *                   content: "Swagger 보완 항목 정리"
- *                   due: "2025-08-07"
- *               notes: "주요 이슈 및 일정 합의"
+ *               meetingDate: "2025-08-05T10:00:00Z"
+ *               location: "온라인 (Google Meet)"
+ *               meetingLink: "https://meet.google.com/xyz-abc"
+ *               content: "주요 이슈 및 일정 합의"
  *       404:
  *         description: "회의록 없음 (작성 유도)"
  *         content:
@@ -137,7 +128,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/MinuteCreateRequest'
+ *             $ref: '#/components/schemas/MinuteUpdateRequest'
  *     responses:
  *       200:
  *         description: "수정 성공"
