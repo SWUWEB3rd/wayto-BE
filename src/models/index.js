@@ -673,11 +673,15 @@ const initializeAssociations = () => {
     User.hasOne(UserSettings, { foreignKey: 'userId', as: 'settings' });
     User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
     User.hasMany(Inquiry, { foreignKey: 'userId', as: 'inquiries' });
+    User.hasMany(TeamMember, { foreignKey: 'userId' });
 
     // Team 관계
     Team.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
     Team.hasMany(Meeting, { foreignKey: 'teamId', as: 'meetings' });
     Team.hasMany(WhenToMeet, { foreignKey: 'teamId', as: 'polls' });
+    Team.hasMany(TeamMember, { foreignKey: 'teamId' });
+    TeamMember.belongsTo(Team, { foreignKey: 'teamId' });
+    TeamMember.belongsTo(User, { foreignKey: 'userId' });
 
     // Meeting 관계
     Meeting.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
