@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../middleware/authMiddleware');
-const { validate, minuteSchema } = require('../middleware/validationMiddleware');
+const { validate, minuteSchema, minuteUpdateSchema } = require('../middleware/validationMiddleware');
 const minuteController = require('../controllers/minuteController');
 
 const router = express.Router();
@@ -15,7 +15,7 @@ router.get('/upcoming', authenticate, minuteController.getUpcomingMeetings);
 router.get('/:minuteId', authenticate, minuteController.getMinute);
 
 // 회의록 수정
-router.patch('/:minuteId', authenticate, validate(minuteSchema), minuteController.updateMinute);
+router.patch('/:minuteId', authenticate, validate(minuteUpdateSchema), minuteController.updateMinute);
 
 // 회의록 삭제
 router.delete('/:minuteId', authenticate, minuteController.deleteMinute);
