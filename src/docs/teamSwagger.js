@@ -7,6 +7,33 @@
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     TeamCreateRequest:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         name:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 50
+ *           description: "생성할 팀의 이름"
+ *           example: "새로운 팀"
+ *         description:
+ *           type: string
+ *           maxLength: 200
+ *           description: "팀 설명 (선택)"
+ *           example: "프로젝트를 합니다."
+ *         teamtag:
+ *           type: string
+ *           maxLength: 50
+ *           description: "팀 태그 (선택)"
+ *           example: "프로젝트 A"
+ */
+
+/**
+ * @swagger
  * /api/teams:
  *   post:
  *     summary: 팀 생성
@@ -164,7 +191,7 @@
  *               $ref: '#/components/schemas/Team'
  *       404:
  *         description: 존재하지 않는 팀
- *
+ * 
  *   delete:
  *     summary: 팀 삭제 (팀장만 가능)
  *     tags: [팀 (Team)]
@@ -355,15 +382,15 @@
  *                           email:
  *                             type: string
  *                             description: 작성자 이메일
- *                         example:
- *                           minutes:
- *                             - id: 101
- *                               title: "1주차 주간 회의"
- *                               createdAt: "2025-09-22T10:00:00Z"
- *                               updatedAt: "2025-09-22T11:20:00Z"
- *                               author:
- *                                 name: "홍길동"
- *                                 email: "hong@example.com"
+ *             example:
+ *               minutes:
+ *               - id: 101
+ *                 title: "1주차 주간 회의"
+ *                 createdAt: "2025-09-22T10:00:00Z"
+ *                 updatedAt: "2025-09-22T11:20:00Z"
+ *                 author:
+ *                   name: "홍길동"
+ *                   email: "hong@example.com"
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
