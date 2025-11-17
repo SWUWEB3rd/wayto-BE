@@ -88,7 +88,7 @@
  *           type: string
  *           format: date-time
  *           description: "생성 시각"
- *         update_at:
+ *         updated_at:
  *           type: string
  *           description: "수정 시각"
  *     MinuteUpdateRequest:
@@ -110,7 +110,7 @@
  *           format: uri
  *         content:
  *           type: string
- *           minLenth: 1
+ *           minLength: 1
  */
 
 /**
@@ -178,8 +178,8 @@
  * @swagger
  * /api/minutes/{minuteId}:
  *   get:
- *     summary: "회의록 상세 조회"
- *     description: "특정 회의록을 조회합니다. 회의록이 없으면 404와 함께 작성 유도 메시지를 반환합니다."
+ *     summary: 회의록 상세 조회
+ *     description: 특정 회의록을 조회합니다. 회의록이 없으면 404와 함께 작성 유도 메시지를 반환합니다.
  *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
@@ -192,24 +192,20 @@
  *         description: "회의록 ID"
  *     responses:
  *       200:
- *         description: "회의록 조회 성공"
+ *         description: 회의록 조회 성공
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/MeetingMinutesResponse'
+ *               $ref: '#/components/schemas/Minute'
  *             example:
  *               title: "백엔드 스프린트 킥오프"
- *               attendees:
- *                 - id: "u_01"
- *                   name: "홍길동"
- *                 - id: "u_02"
- *                   name: "김철수"
+ *               attendees: "홍길동, 김철수"
  *               meetingDate: "2025-08-05T10:00:00Z"
  *               location: "온라인 (Google Meet)"
  *               meetingLink: "https://meet.google.com/xyz-abc"
  *               content: "주요 이슈 및 일정 합의"
  *       404:
- *         description: "회의록 없음 (작성 유도)"
+ *         description: 회의록 없음 (작성 유도)
  *         content:
  *           application/json:
  *             schema:
@@ -225,7 +221,7 @@
  * @swagger
  * /api/minutes/{minuteId}:
  *   patch:
- *     summary: "회의록 수정"
+ *     summary: 회의록 수정
  *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
@@ -243,20 +239,20 @@
  *             $ref: '#/components/schemas/MinuteUpdateRequest'
  *     responses:
  *       200:
- *         description: "수정 성공"
+ *         description: 수정 성공
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
- *         description: "수정 권한 없음 (작성자가 아닌 경우)"
+ *         description: 수정 권한 없음 (작성자가 아닌 경우)
  *       404:
- *         description: "존재하지 않는 회의록"
+ *         description: 존재하지 않는 회의록
  */
 
 /**
  * @swagger
  * /api/minutes/{minuteId}:
  *   delete:
- *     summary: "회의록 삭제"
+ *     summary: 회의록 삭제
  *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
@@ -268,11 +264,11 @@
  *           type: string
  *     responses:
  *       204:
- *         description: "삭제 완료"
+ *         description: 삭제 완료
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
- *         description: "삭제 권한 없음 (작성자가 아닌 경우)"
+ *         description: 삭제 권한 없음 (작성자가 아닌 경우)
  *       404:
- *         description: "존재하지 않는 회의록"
+ *         description: 존재하지 않는 회의록
  */

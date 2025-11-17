@@ -269,12 +269,12 @@ const Minutes = sequelize.define('Minutes', {
     type: DataTypes.STRING(200),
     allowNull: false
   },
-  attendees: {                    // 참석자 (integer..?)
+  attendees: {                    // 참석자
     type: DataTypes.TEXT,
     allowNull: true
   },
-  meetingDate: {                  // 회의날짜
-    type: DataTypes.DATEONLY,
+  meetingDate: {                  // 회의날짜 (시간까지)
+    type: DataTypes.DATE,
     allowNull: true,
     field: 'meeting_date'
   },
