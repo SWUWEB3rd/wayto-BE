@@ -19,8 +19,8 @@ const createTeam = asyncHandler(async (req, res) => {
   // 팀장 추가
   await TeamMember.create({
     teamId: team.id,
-    email: req.user.email,
-    role: 'admin',
+    userId: req.user.id, // email 대신 userId
+    role: 'owner',
   });
 
   res.status(201).json({
@@ -93,6 +93,12 @@ const addMemberToTeam = asyncHandler(async (req, res) => {
     return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
   }
 
+  // [수정] email로 User를 찾아 userId를 사용해야 함
+  const userToAdd = await User.findOne({ where: { email } });
+  if (!userToAdd) {
+    return res.status(404).json({ message: '초대할 사용자를 찾을 수 없습니다.' });
+  }
+
   const existing = await TeamMember.findOne({ where: { teamId, email } });
   if (existing) return res.status(400).json({ error: 'User already exists' });
 
@@ -121,7 +127,8 @@ const getTeamMembers = asyncHandler(async (req, res) => {
   members.sort((a, b) => {
     if (a.role === 'owner') return -1;
     if (b.role === 'owner') return 1;
-    return a.email.localeCompare(b.email);
+    // return a.email.localeCompare(b.email);
+    return a.User.email.localeCompare(b.User.email);
   });
 
   const result = members.map(m => ({
@@ -181,7 +188,10 @@ const getTeamMinutes = asyncHandler(async (req, res) => {
   }
 
   // 팀 멤버인지 체크
-  const member = await TeamMember.findOne({ where: { teamId, email: req.user.email } });
+  // const member = await TeamMember.findOne({ where: { teamId, email: req.user.email } });
+  const member = await TeamMember.findOne({
+    where: { teamId, userId: req.user.id },
+  });
   if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회할 수 있습니다.' });
 
   const minutes = await Minute.findAll({
@@ -211,8 +221,10 @@ const leaveTeam = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
   }
 
+  // await TeamMember.destroy({
+  //   where: { teamId, email: req.user.email },
   await TeamMember.destroy({
-    where: { teamId, email: req.user.email },
+    where: { teamId, userId: req.user.id },
   });
 
   res.status(204).send();
@@ -232,8 +244,12 @@ const kickMember = asyncHandler(async (req, res) => {
   
   if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
 
-  if (team.managerEmail !== req.user.email) {
-    return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
+  // if (team.managerEmail !== req.user.email) {
+  //   return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
+  // }
+  const userToKick = await User.findOne({ where: { email } });
+  if (!userToKick) {
+    return res.status(404).json({ message: '강퇴할 사용자를 찾을 수 없습니다.' });
   }
 
   await TeamMember.destroy({ where: { teamId, email } });
