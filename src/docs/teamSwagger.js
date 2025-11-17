@@ -30,6 +30,27 @@
  *           maxLength: 50
  *           description: "팀 태그 (선택)"
  *           example: "프로젝트 A"
+ *     Team:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 9
+ *         name:
+ *           type: string
+ *           example: "1분기 신규 프로젝트팀"
+ *         description:
+ *           type: string
+ *           example: "신규 프로젝트 런칭을 위한 팀입니다."
+ *         teamtag:
+ *           type: string
+ *           example: "프로젝트A"
+ *         managerEmail:
+ *           type: string
+ *           example: "newuser11@example.com"
+ *         creatorId:
+ *           type: integer
+ *           example: 15
  */
 
 /**
@@ -55,8 +76,22 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Team'
- * 
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "팀이 생성되었습니다."
+ *                 team:
+ *                   $ref: '#/components/schemas/Team'
+ *             example:
+ *               message: "팀이 생성되었습니다."
+ *               team:
+ *                 id: 9
+ *                 name: "1분기 신규 프로젝트팀"
+ *                 description: "신규 프로젝트 런칭을 위한 팀입니다."
+ *                 teamtag: "프로젝트A"
+ *                 managerEmail: "newuser11@example.com"
+ *                 creatorId: 15
  *   get:
  *     summary: 내 팀 목록 조회
  *     description: 현재 로그인한 사용자가 가입한 모든 팀의 목록을 조회합니다.
@@ -157,6 +192,11 @@
  *               $ref: '#/components/schemas/Team'
  *       404:
  *         description: 존재하지 않는 팀
+ */
+
+/**
+ * @swagger
+ * /api/teams/{teamId}:
  *   patch:
  *     summary: 팀 설명 수정
  *     tags: [팀 (Team)]
@@ -186,6 +226,11 @@
  *               $ref: '#/components/schemas/Team'
  *       404:
  *         description: 존재하지 않는 팀
+ */
+
+/**
+ * @swagger
+ * /api/teams/{teamId}:
  *   delete:
  *     summary: 팀 삭제 (팀장만 가능)
  *     tags: [팀 (Team)]
