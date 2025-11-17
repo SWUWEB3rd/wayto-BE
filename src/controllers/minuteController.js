@@ -115,7 +115,7 @@ const getUpcomingMeetings = asyncHandler(async (req, res) => {
 const getMinute = asyncHandler(async (req, res) => {
   const { minuteId } = req.params;
 
-  const minute = await Minute.findByPk(minuteId, {
+  const minute = await Minutes.findByPk(minuteId, {
     include: {
       model: User,
       as: 'author',

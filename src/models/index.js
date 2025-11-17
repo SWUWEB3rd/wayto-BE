@@ -269,12 +269,12 @@ const Minutes = sequelize.define('Minutes', {
     type: DataTypes.STRING(200),
     allowNull: false
   },
-  attendees: {                    // 참석자 (integer..?)
+  attendees: {                    // 참석자
     type: DataTypes.TEXT,
     allowNull: true
   },
-  meetingDate: {                  // 회의날짜
-    type: DataTypes.DATEONLY,
+  meetingDate: {                  // 회의날짜 (시간까지)
+    type: DataTypes.DATE,
     allowNull: true,
     field: 'meeting_date'
   },
@@ -674,6 +674,7 @@ const initializeAssociations = () => {
     User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
     User.hasMany(Inquiry, { foreignKey: 'userId', as: 'inquiries' });
     User.hasMany(TeamMember, { foreignKey: 'userId' });
+    User.hasMany(MeetingAttendee, { foreignKey: 'userId' });
 
     // Team 관계
     Team.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
@@ -687,10 +688,15 @@ const initializeAssociations = () => {
     Meeting.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
     Meeting.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
     Meeting.hasMany(Minutes, { foreignKey: 'meetingId', as: 'minutes' });
+    Meeting.hasMany(MeetingAttendee, { foreignKey: 'meetingId' }); // MeetingAttendee 모델에 정의된 meetingId 키
+
+    // MeetingAttendee 관계
+    MeetingAttendee.belongsTo(Meeting, { foreignKey: 'meetingId' }); // MeetingAttendee 모델에 정의된 meetingId 키
 
     // Minutes 관계
     Minutes.belongsTo(Meeting, { foreignKey: 'meetingId', as: 'meeting' });
     Minutes.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+    MeetingAttendee.belongsTo(User, { foreignKey: 'userId' });
 
     // WhenToMeet 관계
     WhenToMeet.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
