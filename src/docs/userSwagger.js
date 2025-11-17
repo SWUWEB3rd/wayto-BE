@@ -789,6 +789,50 @@
  *               error: "TooManyRequests"
  *               message: "요청이 너무 빈번합니다. 잠시 후 다시 시도해주세요."
  */
+/**
+ * @swagger
+ * /api/users/me/password-check:
+ *   post:
+ *     summary: 회원정보 접근 전 비밀번호 확인
+ *     description: 마이페이지에서 민감 정보 접근 전에 현재 비밀번호를 확인합니다.
+ *     tags: [사용자 관리 (User Management)]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [password]
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 example: "MyPass123!@#"
+ *     responses:
+ *       200:
+ *         description: 비밀번호가 일치함
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valid:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "비밀번호가 확인되었습니다."
+ *       401:
+ *         description: 비밀번호 불일치
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "PasswordMismatch"
+ *               message: "비밀번호가 일치하지 않습니다."
+ */
 
 /**
  * @swagger
