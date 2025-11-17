@@ -119,12 +119,6 @@
  *                   teamtag: "프로젝트A"
  *                   managerEmail: "newuser11@example.com"
  *                   creatorId: 15
- *                 - id: 12
- *                   name: "2분기 기획팀"
- *                   description: "기획팀입니다."
- *                   teamtag: "기획"
- *                   managerEmail: "newuser11@example.com"
- *                   creatorId: 15
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
