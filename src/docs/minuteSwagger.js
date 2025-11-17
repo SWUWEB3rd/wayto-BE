@@ -5,6 +5,72 @@
  *     description: 회의록 관련 API
  */
 
+/** 
+ * @swagger
+ * components:
+ *   schemas:
+ *     MinuteCreateRequest:
+ *       type: object
+ *       required:
+ *         - meetingId
+ *         - title
+ *         - content
+ *       properties:
+ *         meetingId:
+ *           type: integer
+ *           description: "회의 ID"
+ *           example: 123
+ *         title:
+ *           type: string
+ *           description: "회의록 제목"
+ *           minLength: 1
+ *           maxLength: 100
+ *           example: "주간 스프린트 회의"
+ *         attendees:
+ *           type: string
+ *           description: "참석자 목록"
+ *           example: "홍길동, 김철수"
+ *         meetingDate:
+ *           type: string
+ *           format: date
+ *           description: "회의 날짜 (YYYY-MM-DD)"
+ *           example: "2025-11-20"
+ *         location:
+ *           type: string
+ *           description: "회의 장소"
+ *           example: "온라인 (Google Meet)"
+ *         meetingLink:
+ *           type: string
+ *           format: uri
+ *           description: "회의 링크"
+ *           example: "https://meet.google.com/xyz-abc"
+ *         content:
+ *           type: string
+ *           description: "회의록 본문"
+ *           minLength: 1
+ *           example: "주요 안건: ..."
+ *     MinuteUpdateRequest:
+ *       type: object
+ *       properties:
+ *         title:
+ *           type: string
+ *           minLength: 1
+ *           maxLength: 100
+ *         attendees:
+ *           type: string
+ *         meetingDate:
+ *           type: string
+ *           format: date
+ *         location:
+ *           type: string
+ *         meetingLink:
+ *           type: string
+ *           format: uri
+ *         content:
+ *           type: string
+ *           minLenth: 1
+ */
+
 /**
  * @swagger
  * /api/minutes:
@@ -138,7 +204,6 @@
  *         description: "수정 권한 없음 (작성자가 아닌 경우)"
  *       404:
  *         description: "존재하지 않는 회의록"
- *         description: "수정 성공"
  *
  *   delete:
  *     summary: "회의록 삭제"
@@ -160,5 +225,4 @@
  *         description: "삭제 권한 없음 (작성자가 아닌 경우)"
  *       404:
  *         description: "존재하지 않는 회의록"
- *         description: "삭제 완료"
  */
