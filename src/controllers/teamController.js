@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Team, User, TeamMember, Minute } = require('../models');
+const { Team, User, TeamMember, Minutes } = require('../models');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 /**
@@ -203,7 +203,7 @@ const getTeamMinutes = asyncHandler(async (req, res) => {
   });
   if (!member) return res.status(403).json({ error: 'Forbidden', message: '팀 멤버만 조회할 수 있습니다.' });
 
-  const minutes = await Minute.findAll({
+  const minutes = await Minutes.findAll({
     where: { teamId },
     include: [{
       model: User,

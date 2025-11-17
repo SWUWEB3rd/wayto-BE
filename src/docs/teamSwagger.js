@@ -189,17 +189,25 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Team'
+ *               type: object
+ *               properties:
+ *                 team:
+ *                   $ref: '#/components/schemas/Team'
+ *             example:
+ *               team:
+ *                 id: 8
+ *                 name: "1분기 신규 프로젝트팀"
+ *                 description: "신규 프로젝트 런칭을 위한 팀입니다."
+ *                 teamtag: "프로젝트A"
+ *                 managerEmail: "newuser11@example.com"
+ *                 creatorId: 15
  *       404:
  *         description: 존재하지 않는 팀
- */
-
-/**
- * @swagger
- * /api/teams/{teamId}:
  *   patch:
  *     summary: 팀 설명 수정
  *     tags: [팀 (Team)]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: teamId
@@ -223,14 +231,20 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Team'
+ *               type: object
+ *               properties:
+ *                 team:
+ *                   $ref: '#/components/schemas/Team'
+ *             example:
+ *               team:
+ *                 id: 9
+ *                 name: "팀 이름 예시"
+ *                 description: "우리 팀의 새로운 목표는..."
+ *                 teamtag: "프로젝트A"
+ *                 managerEmail: "newuser11@example.com"
+ *                 creatorId: 15
  *       404:
  *         description: 존재하지 않는 팀
- */
-
-/**
- * @swagger
- * /api/teams/{teamId}:
  *   delete:
  *     summary: 팀 삭제 (팀장만 가능)
  *     tags: [팀 (Team)]
