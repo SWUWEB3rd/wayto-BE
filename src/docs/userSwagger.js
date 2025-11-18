@@ -305,7 +305,7 @@
  * /api/users/find/id:
  *   post:
  *     summary: 아이디 찾기
- *     description: 이름과 이메일로 가입된 계정을 조회하여 아이디(이메일)를 반환합니다.
+ *     description: 이름과 전화번호로 가입된 계정을 조회하여 아이디(이메일)를 반환합니다.
  *     tags: [계정 찾기 (Account Recovery)]
  *     security: []
  *     requestBody:
@@ -314,15 +314,15 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email]
+ *             required: [name, phone]
  *             properties:
  *               name:
  *                 type: string
  *                 example: "홍길동"
- *               email:
+ *               phone:
  *                 type: string
- *                 format: email
- *                 example: "user@example.com"
+ *                 pattern: '^010-?\d{4}-?\d{4}$'
+ *                 example: "010-1234-5678"
  *     responses:
  *       200:
  *         description: 아이디 찾기 성공
