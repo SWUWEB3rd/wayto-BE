@@ -174,6 +174,9 @@ const getMinute = asyncHandler(async (req, res) => {
   const { minuteId } = req.params;
 
   const minute = await Minutes.findByPk(minuteId, {
+    attributes: {
+      include: ['teamId'], 
+    },
     include: {
       model: User,
       as: 'author',
