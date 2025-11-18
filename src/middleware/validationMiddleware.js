@@ -182,6 +182,12 @@ const minuteUpdateSchema = Joi.object({
     }),
   attendees: Joi.string().allow(null, '').optional(),
   meetingDate: Joi.date().allow(null).optional(),
+  startTime: Joi.string().regex(timeRegex).optional().messages({
+    'string.pattern.base': 'startTime이 유효한 시간 형식이 아닙니다. (HH:MM)',
+  }),
+  endTime: Joi.string().regex(timeRegex).optional().messages({
+    'string.pattern.base': 'endTime이 유효한 시간 형식이 아닙니다. (HH:MM)',
+  }),
   location: Joi.string().allow(null, '').optional(),
   meetingLink: Joi.string()
     .uri()
