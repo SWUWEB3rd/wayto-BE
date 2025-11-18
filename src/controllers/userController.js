@@ -568,7 +568,7 @@ const changePassword = asyncHandler(async (req, res) => {
 
     // 1. 현재 비밀번호 일치 확인
     if (!(await user.comparePassword(currentPassword))) {
-        return res.status(409).json({
+        return res.status(401).json({
             error: 'PasswordMismatch',
             message: '현재 비밀번호가 일치하지 않습니다.',
         });
