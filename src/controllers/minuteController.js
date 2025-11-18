@@ -53,13 +53,26 @@ const createMinute = asyncHandler(async (req, res) => {
   //   return res.status(404).json({ message: '존재하지 않는 회의입니다.' });
   // }
 
-  const combinedStartDateTime = new Date(`${meetingDate}T${startTime}:00`);
+  let dateStr = meetingDate;
+
+  if (meetingDate instanceof Date) {
+    dateStr = meetingDate.toISOString().split('T')[0];
+  }
+
+  const combinedStartDateTime = new Date(`${dateStr}T${startTime}:00`);
+
+  if (isNaN(combinedStartDateTime.getTime())) {
+    return res.status(400).json({
+      error: 'Invalid Date Format',
+      message: '날짜와 시간 형식이 올바르지 않습니다. (YYYY-MM-DD, HH:MM)',
+    });
+  }
 
   const newMeeting = await Meeting.create({
     teamId,
     organizerId: req.user.id,
     title,
-    meetingDate,
+    meetingDate: dateStr,
     startTime,
     endTime,
     location,
@@ -84,7 +97,7 @@ const createMinute = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     message: '회의록이 작성되었습니다.',
-    minute,
+    minute: responseMinute,
   });
 });
 
