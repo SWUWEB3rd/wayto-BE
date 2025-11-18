@@ -12,14 +12,16 @@
  *     MinuteCreateRequest:
  *       type: object
  *       required:
- *         - meetingId
+ *         - teamId
  *         - title
  *         - content
+ *         - startTime
+ *         - endTime
  *       properties:
- *         meetingId:
+ *         teamId:
  *           type: integer
- *           description: "회의 ID"
- *           example: 123
+ *           description: "회의록이 속한 팀 ID"
+ *           example: 1
  *         title:
  *           type: string
  *           description: "회의록 제목"
@@ -35,6 +37,16 @@
  *           format: date
  *           description: "회의 날짜 (YYYY-MM-DD)"
  *           example: "2025-11-20"
+ *         startTime:
+ *           type: string
+ *           format: time
+ *           description: "회의 시작 시간 (HH:MM)"
+ *           example: "14:00"
+ *         endTime:
+ *           type: string
+ *           format: time
+ *           description: "회의 종료 시간 (HH:MM)"
+ *           example: "15:00"
  *         location:
  *           type: string
  *           description: "회의 장소"
@@ -136,40 +148,22 @@
 
 /**
  * @swagger
- * /api/minutes/upcoming:
+ * /api/minutes/recent:
  *   get:
- *     summary: "예정된 회의 목록 3개 조회 (임박한 순)"
- *     description: "현재 사용자가 참석자로 등록된 회의 중, 'scheduled' 상태이고 오늘 날짜 이후인 회의를 임박한 순서대로 3개 조회합니다."
+ *     summary: "최근 회의록 목록 3개 조회 (임박한 순)"
+ *     description: "현재 사용자가 속한 모든 팀에서 작성된 회의록을 최신순으로 3개 조회합니다."
  *     tags: [회의록 (Minute)]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: "예정된 회의 목록 조회 성공"
+ *         description: "최근 회의록 목록 조회 성공"
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   meetingId:
- *                     type: integer
- *                     description: "회의 ID (회의록 작성 페이지 연결용)"
- *                     example: 123
- *                   title:
- *                     type: string
- *                     description: "회의 제목"
- *                     example: "주간 스프린트 회의"
- *                   meetingDateTime:
- *                     type: string
- *                     format: date-time
- *                     description: "회의 날짜 및 시간 (YYYY-MM-DDTHH:MM:SS)"
- *                     example: '2025-11-20T14:00:00'
- *                   meetingLink:
- *                     type: string
- *                     description: "회의 링크 (예: Google Meet, Zoom)"
- *                     example: "https://meet.google.com/xyz-abc"
+ *                 $ref: '#/components/schemas/Minute'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -240,12 +234,12 @@
  *     responses:
  *       200:
  *         description: 수정 성공
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: 수정 권한 없음 (작성자가 아닌 경우)
- *       404:
- *         description: 존재하지 않는 회의록
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 수정 권한 없음 (작성자가 아닌 경우)
+ *       404:
+ *         description: 존재하지 않는 회의록
  */
 
 /**
@@ -265,10 +259,10 @@
  *     responses:
  *       204:
  *         description: 삭제 완료
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: 삭제 권한 없음 (작성자가 아닌 경우)
- *       404:
- *         description: 존재하지 않는 회의록
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 삭제 권한 없음 (작성자가 아닌 경우)
+ *       404:
+ *         description: 존재하지 않는 회의록
  */
