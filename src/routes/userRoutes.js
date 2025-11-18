@@ -29,7 +29,7 @@ router.post('/reset-pw', userController.resetPassword);
 // 사용자 프로필 관리 (인증 필요)
 router.get('/me', authenticate, userController.getProfile);
 router.patch('/me', authenticate, userController.updateProfile);
-
+router.post('/me/password-check', authenticate, userController.verifyPasswordCheck);
 router.post('/me/password', authenticate, userController.changePassword);
 
 router.post('/email-change/request', authenticate, userController.requestEmailChange);
