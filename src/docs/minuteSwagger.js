@@ -208,16 +208,26 @@
  *       200:
  *         description: 회의록 조회 성공
  *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Minute'
- *             example:
- *               title: "백엔드 스프린트 킥오프"
- *               attendees: "홍길동, 김철수"
- *               meetingDate: "2025-08-05T10:00:00Z"
- *               location: "온라인 (Google Meet)"
- *               meetingLink: "https://meet.google.com/xyz-abc"
- *               content: "주요 이슈 및 일정 합의"
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Minute'
+ *           example:
+ *             id: 7
+ *             meetingId: 7
+ *             authorId: 15
+ *             title: "백엔드 스프린트 킥오프"
+ *             attendees: "홍길동, 김철수"
+ *             meetingDate: "2025-11-20T00:00:00Z"
+ *             location: "온라인 (Google Meet)"
+ *             meetingLink: "https://meet.google.com/xyz-abc"
+ *             content: "주요 이슈 및 일정 합의"
+ *             teamId: 9
+ *             metadata: {}
+ *             created_at: "2025-11-18T03:35:40Z"
+ *             updated_at: "2025-11-18T03:36:31Z"
+ *             author:
+ *               id: 15
+ *               name: "김철수"
  *       404:
  *         description: 회의록 없음 (작성 유도)
  *         content:
