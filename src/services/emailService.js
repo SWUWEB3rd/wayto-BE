@@ -14,6 +14,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD,
   },
 });
+
+// 이부분을 따로 추가 한 것
+/*
 const sendEmail = async (to, subject, html) => {
   try {
     const mailOptions = {
@@ -31,6 +34,7 @@ const sendEmail = async (to, subject, html) => {
     throw new Error('이메일 발송에 실패했습니다.');
   }
 };
+*/
 
 /**
  * 회원가입 인증번호 이메일 발송
