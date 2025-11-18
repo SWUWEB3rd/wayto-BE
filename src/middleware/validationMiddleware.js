@@ -1,4 +1,6 @@
 const Joi = require('joi');
+// 시간 형식을 검증하기 위한 정규식 (HH:MM 또는 HH:MM:SS)
+const timeRegex = /^([0-1]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/;
 
 /**
  * 요청 데이터 검증 미들웨어
@@ -124,7 +126,10 @@ const createTeamSchema = Joi.object({
 
 // 회의록 작성 검증 스키마
 const minuteSchema = Joi.object({
-  meetingId: Joi.number().integer().required(),
+  // meetingId: Joi.number().integer().required(),
+  teamId: Joi.number().integer().required().messages({ // 추가
+    'any.required': '팀 ID는 필수 항목입니다.',
+  }),
   title: Joi.string()
     .min(1)
     .max(100)
@@ -136,6 +141,17 @@ const minuteSchema = Joi.object({
     }),
   attendees: Joi.string().allow(null, ''), // 또는 Joi.array()
   meetingDate: Joi.date().allow(null),
+
+  // Meeting 생성을 위해 startTime, endTime 추가
+  startTime: Joi.string().regex(timeRegex).required().messages({
+    'string.pattern.base': 'startTime이 유효한 시간 형식이 아닙니다. (HH:MM)',
+    'any.required': '시작 시간은 필수 항목입니다.',
+  }),
+  endTime: Joi.string().regex(timeRegex).required().messages({
+    'string.pattern.base': 'endTime이 유효한 시간 형식이 아닙니다. (HH:MM)',
+    'any.required': '종료 시간은 필수 항목입니다.',
+  }),
+
   location: Joi.string().allow(null, ''),
   meetingLink: Joi.string()
     .uri()
