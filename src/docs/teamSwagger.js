@@ -22,14 +22,16 @@
  *           example: "새로운 팀"
  *         description:
  *           type: string
- *           maxLength: 200
+ *           maxLength: 250
  *           description: "팀 설명 (선택)"
  *           example: "프로젝트를 합니다."
  *         teamtag:
- *           type: string
- *           maxLength: 50
- *           description: "팀 태그 (선택)"
- *           example: "프로젝트 A"
+ *           type: array
+ *           items:
+ *             type: string
+ *           maxItems: 3
+ *           description: "팀 태그 (최대 3개, 선택)"
+ *           example: ["프로젝트 A", "백엔드", "2025"]
  *     Team:
  *       type: object
  *       properties:
@@ -43,8 +45,12 @@
  *           type: string
  *           example: "신규 프로젝트 런칭을 위한 팀입니다."
  *         teamtag:
- *           type: string
- *           example: "프로젝트A"
+ *           type: array
+ *           items:
+ *             type: string
+ *           maxItems: 3
+ *           description: "팀 태그 (최대 3개, 선택)"
+ *           example: ["프로젝트 A", "백엔드", "2025"]
  *         managerEmail:
  *           type: string
  *           example: "newuser11@example.com"
@@ -69,7 +75,7 @@
  *           example:
  *             name: "1분기 신규 프로젝트팀"
  *             description: "신규 프로젝트 런칭을 위한 팀입니다."
- *             teamtag: "프로젝트A"
+ *             teamtag: ["프로젝트 A", "백엔드", "2025"]
  *     responses:
  *       201:
  *         description: 팀 생성 성공
@@ -89,7 +95,7 @@
  *                 id: 9
  *                 name: "1분기 신규 프로젝트팀"
  *                 description: "신규 프로젝트 런칭을 위한 팀입니다."
- *                 teamtag: "프로젝트A"
+ *                 teamtag: ["프로젝트 A", "백엔드", "2025"]
  *                 managerEmail: "newuser11@example.com"
  *                 creatorId: 15
  *   get:
@@ -116,7 +122,7 @@
  *                 - id: 9
  *                   name: "1분기 신규 프로젝트팀"
  *                   description: "신규 프로젝트 런칭을 위한 팀입니다."
- *                   teamtag: "프로젝트A"
+ *                   teamtag: ["프로젝트 A", "백엔드", "2025"]
  *                   managerEmail: "newuser11@example.com"
  *                   creatorId: 15
  *       401:
@@ -206,7 +212,7 @@
  *                 id: 8
  *                 name: "1분기 신규 프로젝트팀"
  *                 description: "신규 프로젝트 런칭을 위한 팀입니다."
- *                 teamtag: "프로젝트A"
+ *                 teamtag: ["프로젝트 A", "백엔드", "2025"]
  *                 managerEmail: "newuser11@example.com"
  *                 creatorId: 15
  *       404:
@@ -227,7 +233,7 @@
  *         required: true
  *         schema:
  *           type: string
- *           description: 수정할 팀의 ID
+ *         description: 수정할 팀의 ID
  *     requestBody:
  *       required: true
  *       content:
@@ -237,7 +243,7 @@
  *             properties:
  *               description:
  *                 type: string
- *                   example: "우리 팀의 새로운 목표는..."
+ *                 example: "우리 팀의 새로운 목표는..."
  *     responses:
  *       200:
  *         description: 팀 설명 수정 성공
@@ -253,7 +259,7 @@
  *                 id: 9
  *                 name: "팀 이름 예시"
  *                 description: "우리 팀의 새로운 목표는..."
- *                 teamtag: "프로젝트A"
+ *                 teamtag: ["프로젝트 A", "백엔드", "2025"]
  *                 managerEmail: "newuser11@example.com"
  *                 creatorId: 15
  *       404:

@@ -75,7 +75,7 @@ const Team = sequelize.define('Team', {
     autoIncrement: true
   },
   name: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING,
     allowNull: false
   },
   description: {
@@ -83,8 +83,9 @@ const Team = sequelize.define('Team', {
     allowNull: true
   },
   teamtag: {
-    type: DataTypes.STRING(50),
-    allowNull: true
+    type: DataTypes.ARRAY(DataTypes.STRING), 
+    allowNull: true,
+    field: 'team_tags'
   },
   managerEmail: {
     type: DataTypes.STRING,
