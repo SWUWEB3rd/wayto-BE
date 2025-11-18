@@ -77,7 +77,7 @@
  *           example: "홍길동, 김철수"
  *         meetingDate:
  *           type: string
- *           format: date
+ *           format: date-time
  *           description: "회의 날짜"
  *           example: "2025-11-20"
  *         location:
@@ -99,6 +99,17 @@
  *         authorId:
  *           type: integer
  *           description: "작성자 ID"
+ *         author:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *               description: "작성자 유저 ID"
+ *               example: 15
+ *             name:
+ *               type: string
+ *               description: "작성자 이름"
+ *               example: "김철수"
  *         metadata:
  *           type: object
  *           description: "메타데이터"
@@ -184,6 +195,22 @@
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Minute'
+ *           example:
+ *             id: 7
+ *             title: "백엔드 스프린트 킥오프"
+ *             attendees: "홍길동, 김철수"
+ *             meetingDate: "2025-11-20T00:00:00Z"
+ *             location: "온라인 (Google Meet)"
+ *             meetingLink: "https://meet.google.com/xyz-abc"
+ *             content: "주요 이슈 및 일정 합의"
+ *             meetingId: 7
+ *             authorId: 15
+ *             metadata: {}
+ *             created_at: "2025-11-18T03:35:40Z"
+ *             updated_at: "2025-11-18T03:36:31Z"
+ *             author:
+ *               id: 15
+ *               name: "김철수"
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -213,15 +240,14 @@
  *               $ref: '#/components/schemas/Minute'
  *             example:
  *               id: 7
- *               meetingId: 7
- *               authorId: 15
  *               title: "백엔드 스프린트 킥오프"
  *               attendees: "홍길동, 김철수"
  *               meetingDate: "2025-11-20T00:00:00Z"
  *               location: "온라인 (Google Meet)"
  *               meetingLink: "https://meet.google.com/xyz-abc"
  *               content: "주요 이슈 및 일정 합의"
- *               teamId: 9
+ *               meetingId: 7
+ *               authorId: 15
  *               metadata: {}
  *               created_at: "2025-11-18T03:35:40Z"
  *               updated_at: "2025-11-18T03:36:31Z"
