@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
 const checkTeamMembership = async (userId, teamId) => {
-  if (!teamId) return false; // teamId가 없으면 검증 불가
+  // if (!teamId) return false; // teamId가 없으면 검증 불가
 
   const member = await TeamMember.findOne({
     where: {
