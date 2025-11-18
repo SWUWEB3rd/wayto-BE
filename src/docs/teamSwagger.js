@@ -119,12 +119,12 @@
  *                     description: 사용자가 속한 팀
  *             example:
  *               teams:
- *                 - id: 9
- *                   name: "1분기 신규 프로젝트팀"
+ *                 - name: "1분기 신규 프로젝트팀"
  *                   description: "신규 프로젝트 런칭을 위한 팀입니다."
- *                   teamtag: ["프로젝트 A", "백엔드", "2025"]
- *                   managerEmail: "newuser11@example.com"
- *                   creatorId: 15
+ *                   teamtag: ["프로젝트A", "개발"]
+ *                 - name: "기획팀"
+ *                   description: "서비스 기획을 담당합니다."
+ *                   teamtag: ["기획", "2025"]
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
