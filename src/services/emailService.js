@@ -147,7 +147,6 @@ const sendPasswordResetEmailMock = async (email, resetUrl) => {
 };
 
 module.exports = {
-  sendEmail,
   sendVerificationEmail: useEmailMock ? sendVerificationEmailMock : sendVerificationEmail,
   sendPasswordResetEmail: useEmailMock ? sendPasswordResetEmailMock : sendPasswordResetEmail,
 };
