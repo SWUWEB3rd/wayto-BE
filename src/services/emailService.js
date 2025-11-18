@@ -14,6 +14,23 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD,
   },
 });
+const sendEmail = async (to, subject, html) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@wayto.com',
+      to,
+      subject,
+      html,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('일반 이메일 발송 성공:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('일반 이메일 발송 실패:', error);
+    throw new Error('이메일 발송에 실패했습니다.');
+  }
+};
 
 /**
  * 회원가입 인증번호 이메일 발송
@@ -119,6 +136,7 @@ const sendPasswordResetEmailMock = async (email, resetUrl) => {
 };
 
 module.exports = {
+  sendEmail,
   sendVerificationEmail: useEmailMock ? sendVerificationEmailMock : sendVerificationEmail,
   sendPasswordResetEmail: useEmailMock ? sendPasswordResetEmailMock : sendPasswordResetEmail,
 };
