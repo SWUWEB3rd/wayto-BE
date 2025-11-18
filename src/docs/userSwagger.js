@@ -82,6 +82,7 @@
  *                 name: "홍길동"
  *                 phone: "010-1234-5678"
  *               token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *               redirectUrl: "https://waayto.com"
  *       401:
  *         description: 로그인 실패
  *         content:
@@ -164,7 +165,7 @@
  * /api/users/verify-number:
  *   post:
  *     summary: 인증번호 검증
- *     description: 이메일로 받은 인증번호를 검증합니다.
+ *     description: 이메일로 받은 인증번호를 검증합니다. (테스트용으로 EXPOSE_CODES_FOR_TEST=true 시 응답에 code/type 포함)
  *     tags: [인증 (Authentication)]
  *     security: []
  *     requestBody:
@@ -304,7 +305,7 @@
  * /api/users/find/id:
  *   post:
  *     summary: 아이디 찾기
- *     description: 전화번호와 인증번호로 등록된 이메일(아이디)을 찾습니다.
+ *     description: 이름과 이메일로 가입된 계정을 조회하여 아이디(이메일)를 반환합니다.
  *     tags: [계정 찾기 (Account Recovery)]
  *     security: []
  *     requestBody:
@@ -313,17 +314,15 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [phone, verificationCode]
+ *             required: [name, email]
  *             properties:
- *               phone:
+ *               name:
  *                 type: string
- *                 pattern: '^010-?\d{4}-?\d{4}$'
- *                 example: "010-1234-5678"
- *               verificationCode:
+ *                 example: "홍길동"
+ *               email:
  *                 type: string
- *                 minLength: 6
- *                 maxLength: 6
- *                 example: "123456"
+ *                 format: email
+ *                 example: "user@example.com"
  *     responses:
  *       200:
  *         description: 아이디 찾기 성공
@@ -337,12 +336,10 @@
  *                   example: "아이디를 찾았습니다."
  *                 email:
  *                   type: string
- *                   description: "마스킹 처리된 이메일"
- *                   example: "use***@example.com"
- *       400:
- *         description: 인증번호 오류 또는 잘못된 요청
+ *                   description: "가입된 이메일 (아이디)"
+ *                   example: "user@example.com"
  *       404:
- *         description: 해당 전화번호로 가입된 계정 없음
+ *         description: 회원 정보를 찾지 못함
  */
 
 /**
@@ -350,7 +347,7 @@
  * /api/users/find/pw:
  *   post:
  *     summary: 비밀번호 찾기
- *     description: 이메일로 비밀번호 재설정 링크를 발송합니다.
+ *     description: 이름과 이메일이 일치하는 계정에 비밀번호 재설정 링크를 발송합니다. (EXPOSE_CODES_FOR_TEST=true 시 응답에 resetUrl 포함 가능)
  *     tags: [계정 찾기 (Account Recovery)]
  *     security: []
  *     requestBody:
@@ -359,8 +356,11 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email]
+ *             required: [name, email]
  *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "홍길동"
  *               email:
  *                 type: string
  *                 format: email
@@ -376,8 +376,11 @@
  *                 message:
  *                   type: string
  *                   example: "비밀번호 재설정 링크가 이메일로 발송되었습니다."
+ *                 email:
+ *                   type: string
+ *                   example: "user@example.com"
  *       404:
- *         description: 해당 이메일로 가입된 계정 없음
+ *         description: 회원 정보를 찾지 못함
  */
 
 /**
