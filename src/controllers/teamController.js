@@ -46,6 +46,7 @@ const getMyTeams = asyncHandler(async (req, res) => {
       {
         model: Team,
         required: true,
+        attributes: ['id', 'name', 'description', 'teamtag'], // 원하는 필드만 가져오기 (id 포함)
       },
     ],
     // 팀 이름 오름차순 (필요시 수정 가능성 O)

@@ -53,11 +53,19 @@ const createMinute = asyncHandler(async (req, res) => {
   //   return res.status(404).json({ message: '존재하지 않는 회의입니다.' });
   // }
 
+  let dateStr = meetingDate;
+
+  if (meetingDate instanceof Date) {
+    dateStr = meetingDate.toISOString().split('T')[0];
+  }
+
+  const combinedStartDateTime = new Date(`${dateStr}T${startTime}:00`);
+
   const newMeeting = await Meeting.create({
     teamId,
     organizerId: req.user.id,
     title,
-    meetingDate,
+    meetingDate: dateStr,
     startTime,
     endTime,
     location,
@@ -71,15 +79,21 @@ const createMinute = asyncHandler(async (req, res) => {
     authorId: req.user.id,
     title,
     attendees,
-    meetingDate,
+    meetingDate: combinedStartDateTime,
     location,
     meetingLink,
     content,
   });
 
+  const responseMinute = minute.toJSON();
+  
+  responseMinute.meetingDate = dateStr; 
+  responseMinute.startTime = startTime;
+  responseMinute.endTime = endTime;
+
   res.status(201).json({
     message: '회의록이 작성되었습니다.',
-    minute,
+    minute: responseMinute,
   });
 });
 
@@ -110,11 +124,33 @@ const getRecentMinutes = asyncHandler(async (req, res) => {
     },
     order: [['created_at', 'DESC']],
     limit: 3,
-    include: {
-      model: User,
-      as: 'author',
-      attributes: ['id', 'name'],
-    },
+    include: [
+      {
+        model: User,
+        as: 'author',
+        attributes: ['id', 'name'],
+      },
+      // Meeting 정보(endTime) 함께 조회
+      {
+        model: Meeting,
+        as: 'meeting',
+        attributes: ['meetingDate', 'startTime', 'endTime'],
+        required: true
+      }
+    ]
+  });
+
+  const formattedMinutes = recentMinutes.map(minute => {
+    const minuteJSON = minute.toJSON();
+    
+    if (minute.meeting) {
+      minuteJSON.meetingDate = minute.meeting.meetingDate; // "2025-11-20"
+      minuteJSON.startTime = minute.meeting.startTime;     // "14:00"
+      minuteJSON.endTime = minute.meeting.endTime;         // "15:00"
+    }
+    
+    delete minuteJSON.meeting; // 중복 정보 제거
+    return minuteJSON;
   });
 
   res.status(200).json(recentMinutes);
@@ -177,11 +213,19 @@ const getMinute = asyncHandler(async (req, res) => {
     attributes: {
       include: ['teamId'], 
     },
-    include: {
-      model: User,
-      as: 'author',
-      attributes: ['id', 'name'],
-    },
+    include: [
+      {
+        model: User,
+        as: 'author',
+        attributes: ['id', 'name'],
+      },
+      // Meeting 정보(endTime) 함께 조회
+      {
+        model: Meeting,
+        as: 'meeting',
+        attributes: ['meetingDate', 'startTime', 'endTime'],
+      }
+    ],
   });
 
   if (!minute) {
@@ -198,6 +242,14 @@ const getMinute = asyncHandler(async (req, res) => {
       message: '해당 회의록이 속한 팀 멤버만 조회할 수 있습니다.' 
     });
   }
+
+  const minuteJSON = minute.toJSON();
+  if (minute.meeting) {
+    minuteJSON.meetingDate = minute.meeting.meetingDate;
+    minuteJSON.startTime = minute.meeting.startTime;
+    minuteJSON.endTime = minute.meeting.endTime;
+  }
+  delete minuteJSON.meeting;
 
   res.status(200).json(minute);
 });
@@ -225,15 +277,27 @@ const updateMinute = asyncHandler(async (req, res) => {
     title,
     attendees,
     meetingDate,
+    startTime,
+    endTime,
     location,
     meetingLink,
     content
   } = req.body;
 
+  let dateStr = meetingDate;
+  if (meetingDate && meetingDate instanceof Date) {
+    dateStr = meetingDate.toISOString().split('T')[0];
+  }
+
+  let combinedStartDateTime;
+  if (dateStr && startTime) {
+      combinedStartDateTime = new Date(`${dateStr}T${startTime}:00`);
+  }
+
   const updatedMinute = await minute.update({
     title,
     attendees,
-    meetingDate,
+    meetingDate: combinedStartDateTime,
     location,
     meetingLink,
     content
@@ -244,10 +308,20 @@ const updateMinute = asyncHandler(async (req, res) => {
   if (meeting) {
     await meeting.update({
       title,
-      meetingDate,
+      meetingDate: dateStr, // 날짜 문자열
+      startTime,            // 시작 시간
+      endTime,
       location,
       meetingUrl: meetingLink,
     });
+  }
+
+  const responseMinute = updatedMinute.toJSON();
+
+  if (meeting) {
+    responseMinute.meetingDate = meeting.meetingDate; // "YYYY-MM-DD"
+    responseMinute.startTime = meeting.startTime;     // "HH:MM"
+    responseMinute.endTime = meeting.endTime;         // "HH:MM"
   }
 
   res.status(200).json({
