@@ -344,25 +344,6 @@ const updateProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findByPk(req.user.id);
 
-  // 비밀번호 변경 시 현재 비밀번호 확인
-  if (newPassword) {
-    if (!currentPassword) {
-      return res.status(400).json({
-        error: 'Current password required',
-        message: '현재 비밀번호를 입력해주세요.',
-      });
-    }
-
-    if (!(await user.comparePassword(currentPassword))) {
-      return res.status(401).json({
-        error: 'Invalid current password',
-        message: '현재 비밀번호가 올바르지 않습니다.',
-      });
-    }
-
-    user.password = newPassword;
-  }
-
   // 다른 필드 업데이트
   if (name) user.name = name;
   if (phone) user.phone = phone;
@@ -576,7 +557,7 @@ const changePassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
 
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, { attributes: ['id', 'password'] });
 
     // 1. 현재 비밀번호 일치 확인
     if (!(await user.comparePassword(currentPassword))) {
@@ -610,7 +591,7 @@ const verifyPasswordCheck = asyncHandler(async (req, res) => {
         });
     }
 
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, { attributes: ['id', 'password'] });
     
     // 1. 비밀번호 일치 확인
     if (!user || !(await user.comparePassword(password))) {
