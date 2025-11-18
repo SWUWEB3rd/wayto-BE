@@ -201,7 +201,9 @@ const minuteUpdateSchema = Joi.object({
 // 아이디 찾기 검증 스키마 (이름 + 이메일)
 const findIdSchema = Joi.object({
   name: commonSchemas.name,
-  email: commonSchemas.email,
+  phone: commonSchemas.phone.required().messages({
+    'any.required': '전화번호는 필수 항목입니다.',
+  }),
 });
 
 // 비밀번호 찾기 검증 스키마 (이름 + 이메일)
