@@ -690,6 +690,7 @@ const initializeAssociations = () => {
     Meeting.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
     Meeting.hasMany(Minutes, { foreignKey: 'meetingId', as: 'minutes' });
     Meeting.hasMany(MeetingAttendee, { foreignKey: 'meetingId' }); // MeetingAttendee 모델에 정의된 meetingId 키
+    Meeting.hasOne(Minutes, { foreignKey: 'meetingId' });
 
     // MeetingAttendee 관계
     MeetingAttendee.belongsTo(Meeting, { foreignKey: 'meetingId' }); // MeetingAttendee 모델에 정의된 meetingId 키

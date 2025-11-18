@@ -53,6 +53,8 @@ const createMinute = asyncHandler(async (req, res) => {
   //   return res.status(404).json({ message: '존재하지 않는 회의입니다.' });
   // }
 
+  const combinedStartDateTime = new Date(`${meetingDate}T${startTime}:00`);
+
   const newMeeting = await Meeting.create({
     teamId,
     organizerId: req.user.id,
@@ -71,11 +73,14 @@ const createMinute = asyncHandler(async (req, res) => {
     authorId: req.user.id,
     title,
     attendees,
-    meetingDate,
+    meetingDate: combinedStartDateTime,
     location,
     meetingLink,
     content,
   });
+
+  const responseMinute = minute.toJSON();
+  responseMinute.endTime = endTime; // Meeting의 endTime을 응답에 포함
 
   res.status(201).json({
     message: '회의록이 작성되었습니다.',
@@ -110,11 +115,27 @@ const getRecentMinutes = asyncHandler(async (req, res) => {
     },
     order: [['created_at', 'DESC']],
     limit: 3,
-    include: {
-      model: User,
-      as: 'author',
-      attributes: ['id', 'name'],
-    },
+    include: [
+      {
+        model: User,
+        as: 'author',
+        attributes: ['id', 'name'],
+      },
+      // Meeting 정보(endTime) 함께 조회
+      {
+        model: Meeting,
+        as: 'meeting',
+        attributes: ['endTime'], // 필요한 필드만 선택
+        required: true
+      }
+    ]
+  });
+
+  const formattedMinutes = recentMinutes.map(minute => {
+    const minuteJSON = minute.toJSON();
+    minuteJSON.endTime = minute.meeting ? minute.meeting.endTime : null;
+    delete minuteJSON.Meeting; // 불필요한 중첩 객체 삭제
+    return minuteJSON;
   });
 
   res.status(200).json(recentMinutes);
@@ -177,11 +198,19 @@ const getMinute = asyncHandler(async (req, res) => {
     attributes: {
       include: ['teamId'], 
     },
-    include: {
-      model: User,
-      as: 'author',
-      attributes: ['id', 'name'],
-    },
+    include: [
+      {
+        model: User,
+        as: 'author',
+        attributes: ['id', 'name'],
+      },
+      // Meeting 정보(endTime) 함께 조회
+      {
+        model: Meeting,
+        as: 'meeting',
+        attributes: ['endTime'],
+      }
+    ],
   });
 
   if (!minute) {
@@ -198,6 +227,10 @@ const getMinute = asyncHandler(async (req, res) => {
       message: '해당 회의록이 속한 팀 멤버만 조회할 수 있습니다.' 
     });
   }
+
+  const minuteJSON = minute.toJSON();
+  minuteJSON.endTime = minute.meeting ? minute.meeting.endTime : null;
+  delete minuteJSON.Meeting;
 
   res.status(200).json(minute);
 });
