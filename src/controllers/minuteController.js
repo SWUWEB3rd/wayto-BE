@@ -53,13 +53,19 @@ const createMinute = asyncHandler(async (req, res) => {
   //   return res.status(404).json({ message: '존재하지 않는 회의입니다.' });
   // }
 
-  const combinedStartDateTime = new Date(`${meetingDate}T${startTime}:00`);
+  let dateStr = meetingDate;
+
+  if (meetingDate instanceof Date) {
+    dateStr = meetingDate.toISOString().split('T')[0];
+  }
+
+  const combinedStartDateTime = new Date(`${dateStr}T${startTime}:00`);
 
   const newMeeting = await Meeting.create({
     teamId,
     organizerId: req.user.id,
     title,
-    meetingDate,
+    meetingDate: dateStr,
     startTime,
     endTime,
     location,
@@ -80,11 +86,14 @@ const createMinute = asyncHandler(async (req, res) => {
   });
 
   const responseMinute = minute.toJSON();
-  responseMinute.endTime = endTime; // Meeting의 endTime을 응답에 포함
+  
+  responseMinute.meetingDate = dateStr; 
+  responseMinute.startTime = startTime;
+  responseMinute.endTime = endTime;
 
   res.status(201).json({
     message: '회의록이 작성되었습니다.',
-    minute,
+    minute: responseMinute,
   });
 });
 
@@ -125,7 +134,7 @@ const getRecentMinutes = asyncHandler(async (req, res) => {
       {
         model: Meeting,
         as: 'meeting',
-        attributes: ['endTime'], // 필요한 필드만 선택
+        attributes: ['meetingDate', 'startTime', 'endTime'],
         required: true
       }
     ]
@@ -133,8 +142,14 @@ const getRecentMinutes = asyncHandler(async (req, res) => {
 
   const formattedMinutes = recentMinutes.map(minute => {
     const minuteJSON = minute.toJSON();
-    minuteJSON.endTime = minute.meeting ? minute.meeting.endTime : null;
-    delete minuteJSON.Meeting; // 불필요한 중첩 객체 삭제
+    
+    if (minute.meeting) {
+      minuteJSON.meetingDate = minute.meeting.meetingDate; // "2025-11-20"
+      minuteJSON.startTime = minute.meeting.startTime;     // "14:00"
+      minuteJSON.endTime = minute.meeting.endTime;         // "15:00"
+    }
+    
+    delete minuteJSON.meeting; // 중복 정보 제거
     return minuteJSON;
   });
 
@@ -208,7 +223,7 @@ const getMinute = asyncHandler(async (req, res) => {
       {
         model: Meeting,
         as: 'meeting',
-        attributes: ['endTime'],
+        attributes: ['meetingDate', 'startTime', 'endTime'],
       }
     ],
   });
@@ -229,8 +244,12 @@ const getMinute = asyncHandler(async (req, res) => {
   }
 
   const minuteJSON = minute.toJSON();
-  minuteJSON.endTime = minute.meeting ? minute.meeting.endTime : null;
-  delete minuteJSON.Meeting;
+  if (minute.meeting) {
+    minuteJSON.meetingDate = minute.meeting.meetingDate;
+    minuteJSON.startTime = minute.meeting.startTime;
+    minuteJSON.endTime = minute.meeting.endTime;
+  }
+  delete minuteJSON.meeting;
 
   res.status(200).json(minute);
 });
@@ -258,15 +277,27 @@ const updateMinute = asyncHandler(async (req, res) => {
     title,
     attendees,
     meetingDate,
+    startTime,
+    endTime,
     location,
     meetingLink,
     content
   } = req.body;
 
+  let dateStr = meetingDate;
+  if (meetingDate && meetingDate instanceof Date) {
+    dateStr = meetingDate.toISOString().split('T')[0];
+  }
+
+  let combinedStartDateTime;
+  if (dateStr && startTime) {
+      combinedStartDateTime = new Date(`${dateStr}T${startTime}:00`);
+  }
+
   const updatedMinute = await minute.update({
     title,
     attendees,
-    meetingDate,
+    meetingDate: combinedStartDateTime,
     location,
     meetingLink,
     content
@@ -277,10 +308,20 @@ const updateMinute = asyncHandler(async (req, res) => {
   if (meeting) {
     await meeting.update({
       title,
-      meetingDate,
+      meetingDate: dateStr, // 날짜 문자열
+      startTime,            // 시작 시간
+      endTime,
       location,
       meetingUrl: meetingLink,
     });
+  }
+
+  const responseMinute = updatedMinute.toJSON();
+
+  if (meeting) {
+    responseMinute.meetingDate = meeting.meetingDate; // "YYYY-MM-DD"
+    responseMinute.startTime = meeting.startTime;     // "HH:MM"
+    responseMinute.endTime = meeting.endTime;         // "HH:MM"
   }
 
   res.status(200).json({

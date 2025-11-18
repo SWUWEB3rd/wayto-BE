@@ -148,6 +148,16 @@
  *           format: date
  *           description: "회의 날짜 (YYYY-MM-DD)"
  *           example: "2025-11-20"
+ *         startTime:
+ *           type: string
+ *           format: time
+ *           description: "회의 시작 시간 (HH:MM)"
+ *           example: "14:00"
+ *         endTime:
+ *           type: string
+ *           format: time
+ *           description: "회의 종료 시간 (HH:MM)"
+ *           example: "15:00"
  *         location:
  *           type: string
  *           description: "회의 장소"
@@ -299,6 +309,35 @@
  *     responses:
  *       200:
  *         description: 수정 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                minute:
+ *                  $ref: '#/components/schemas/Minute'
+ *             example:
+ *               message: "회의록이 수정되었습니다."
+ *             minute:
+ *               id: 7
+ *               title: "업데이트된 회의"
+ *               attendees: "홍길동, 김철수"
+ *               meetingDate: "2025-11-20"
+ *               startTime: "14:00:00"
+ *               endTime: "15:00:00"
+ *               location: "온라인 (Google Meet)"
+ *               meetingLink: "https://meet.google.com/xyz-abc"
+ *               content: "수정된 내용입니다."
+ *               meetingId: 7
+ *               authorId: 15
+ *               metadata: {}
+ *               created_at: "2025-11-18T03:35:40Z"
+ *               updated_at: "2025-11-18T04:00:00Z"
+ *               author:
+ *                 id: 15
+ *                 name: "김철수"
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
