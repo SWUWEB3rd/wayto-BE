@@ -3,6 +3,18 @@ const { Op } = require('sequelize');
 
 const { asyncHandler } = require('../middleware/errorMiddleware');
 
+const checkTeamMembership = async (userId, teamId) => {
+  if (!teamId) return false; // teamId가 없으면 검증 불가
+
+  const member = await TeamMember.findOne({
+    where: {
+      userId: userId,
+      teamId: teamId
+    }
+  });
+  return !!member; // 멤버십이 존재하면 true, 아니면 false
+};
+
 /**
  * @desc    회의록 작성 (회의 자동 생성)
  * @route   POST /api/minutes
@@ -20,6 +32,14 @@ const createMinute = asyncHandler(async (req, res) => {
     location,
     meetingLink,
   } = req.body;
+
+  const isTeamMember = await checkTeamMembership(req.user.id, teamId);
+  if (!isTeamMember) {
+    return res.status(403).json({ 
+      error: 'Forbidden', 
+      message: '해당 팀에 속한 멤버만 회의록을 작성할 수 있습니다.' 
+    });
+  }
 
   // if (!meetingId) {
   //   return res.status(400).json({
@@ -88,7 +108,7 @@ const getRecentMinutes = asyncHandler(async (req, res) => {
         [Op.in]: teamIds,
       },
     },
-    order: [['createdAt', 'DESC']],
+    order: [['created_at', 'DESC']],
     limit: 3,
     include: {
       model: User,
@@ -165,6 +185,14 @@ const getMinute = asyncHandler(async (req, res) => {
     return res.status(404).json({
       error: 'Minute not found',
       message: '회의록이 없습니다. 작성 페이지로 이동하세요.',
+    });
+  }
+
+  const isTeamMember = await checkTeamMembership(req.user.id, minute.teamId);
+  if (!isTeamMember) {
+    return res.status(403).json({ 
+      error: 'Forbidden', 
+      message: '해당 회의록이 속한 팀 멤버만 조회할 수 있습니다.' 
     });
   }
 

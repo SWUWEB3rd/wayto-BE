@@ -162,6 +162,8 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Minute'
+ *       403:
+ *         description: 해당 팀 멤버만 회의록을 작성할 수 있습니다.
  */
 
 /**
@@ -227,6 +229,8 @@
  *               message: "회의록이 없습니다. 작성 페이지로 이동하세요."
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: 해당 팀 멤버만 회의록을 조회할 수 있습니다.
  *   patch:
  *     summary: 회의록 수정
  *     tags: [회의록 (Minute)]
