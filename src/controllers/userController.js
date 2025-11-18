@@ -290,9 +290,12 @@ const findUserPassword = asyncHandler(async (req, res) => {
   const resetToken = user.generatePasswordResetToken();
   await user.save();
 
+  // 사용자 안내용 6자리 코드(이메일 본문에 표시용)
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
   // 재설정 링크 이메일 발송
   const resetUrl = `${clientBaseUrl}/reset-password?token=${resetToken}`;
-  await emailService.sendPasswordResetEmail(email, resetUrl);
+  await emailService.sendPasswordResetEmail(email, resetUrl, resetCode);
 
   const response = {
     message: '비밀번호 재설정 링크가 이메일로 발송되었습니다.',
@@ -301,6 +304,7 @@ const findUserPassword = asyncHandler(async (req, res) => {
 
   if (isTestExposure) {
     response.resetUrl = resetUrl;
+    response.resetCode = resetCode;
   }
 
   res.json(response);

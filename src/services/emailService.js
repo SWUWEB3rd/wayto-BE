@@ -58,8 +58,9 @@ const sendVerificationEmail = async (email, verificationCode) => {
  * 비밀번호 재설정 이메일 발송
  * @param {string} email - 수신자 이메일
  * @param {string} resetUrl - 비밀번호 재설정 링크
+ * @param {string} [displayCode] - 사용자 안내용 6자리 코드 (선택)
  */
-const sendPasswordResetEmail = async (email, resetUrl) => {
+const sendPasswordResetEmail = async (email, resetUrl, displayCode) => {
   try {
     const mailOptions = {
       from: process.env.EMAIL_FROM || 'noreply@wayto.com',
@@ -73,6 +74,12 @@ const sendPasswordResetEmail = async (email, resetUrl) => {
               안녕하세요,<br><br>
               비밀번호 재설정을 요청하셨습니다. 아래 링크를 클릭하여 새로운 비밀번호를 설정해주세요.
             </p>
+            ${displayCode ? `
+            <div style="text-align:center; margin: 20px 0;">
+              <div style="font-size:26px; font-weight:bold; color:#007bff; letter-spacing:4px;">${displayCode}</div>
+              <div style="color:#777; margin-top:8px;">인증번호(6자리)</div>
+            </div>
+            ` : ''}
             <div style="text-align: center; margin: 30px 0;">
               <a href="${resetUrl}" style="display: inline-block; padding: 15px 30px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
                 비밀번호 재설정하기
