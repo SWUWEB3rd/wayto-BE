@@ -6,7 +6,8 @@ const emailService = require('../services/emailService');
 
 const clientBaseUrl = process.env.CLIENT_URL || 'https://waayto.com';
 const defaultRedirectUrl = process.env.DEFAULT_REDIRECT_URL || 'https://waayto.com';
-const isTestExposure = process.env.EXPOSE_CODES_FOR_TEST === 'true';
+// 기본: 테스트 노출 on, 운영 시 EXPOSE_CODES_FOR_TEST=false 로 끕니다.
+const isTestExposure = process.env.EXPOSE_CODES_FOR_TEST !== 'false';
 
 // JWT 토큰 생성
 const generateToken = (userId) => {

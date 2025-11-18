@@ -3,7 +3,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # 테스트용 인증코드 노출 여부 (필요 시 빌드 ARG로 덮어쓰기)
-ARG EXPOSE_CODES_FOR_TEST=false
+ARG EXPOSE_CODES_FOR_TEST=true
 ENV EXPOSE_CODES_FOR_TEST=${EXPOSE_CODES_FOR_TEST}
 
 # 패키지 파일 복사
