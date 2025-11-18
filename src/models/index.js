@@ -842,15 +842,13 @@ RefreshToken.findValidToken = async function(token) {
 };
 
 // ===== 데이터베이스 동기화 =====
-// const syncDatabase = async (force = false) => {
-const syncDatabase = async () => {
+const syncDatabase = async (force = false) => {
   try {
     // 관계 설정 초기화
     initializeAssociations();
 
     // 데이터베이스 동기화
-    // await sequelize.sync({ force });
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force });
     console.log('✅ PostgreSQL 데이터베이스 동기화 완료');
 
     // 초기 데이터 생성 (force=true인 경우에만)
