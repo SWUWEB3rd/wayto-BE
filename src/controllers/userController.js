@@ -489,17 +489,18 @@ const searchUsers = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    이메일 변경 요청 (인증번호 발송)
- * @route   POST /api/users/email-change/request
- * @access  Private
+ * @desc    이메일 변경 요청 (인증번호 발송)
+ * @route   POST /api/users/email-change/request
+ * @access  Private
  */
 const requestEmailChange = asyncHandler(async (req, res) => {
     const { newEmail, currentPassword } = req.body;
-    const userId = req.user.id; // authenticate 미들웨어에서 가져옴
+    const userId = req.user.id; 
 
+    // 1. 사용자 정보 로드
     const user = await User.findByPk(userId);
 
-    // 1. 현재 비밀번호 일치 확인
+    // 2. 현재 비밀번호 일치 확인 (find/pw 로직에는 없지만, email-change에는 필수)
     if (!(await user.comparePassword(currentPassword))) {
         return res.status(401).json({
             error: 'Invalid current password',
@@ -507,7 +508,7 @@ const requestEmailChange = asyncHandler(async (req, res) => {
         });
     }
 
-    // 2. 새 이메일 중복 확인
+    // 3. 새 이메일 중복 확인 (find/pw 로직에는 없지만, email-change에는 필수)
     const existingUser = await User.findOne({ where: { email: newEmail } });
     if (existingUser) {
         return res.status(409).json({
@@ -516,23 +517,34 @@ const requestEmailChange = asyncHandler(async (req, res) => {
         });
     }
 
-    // 3. 6자리 인증번호 생성 및 임시 저장 (type: email_change)
+    // 4. 인증번호 생성 및 임시 저장 (find/pw 로직의 토큰/코드 생성 및 저장 단계와 유사)
+    // find/pw의 resetCode 생성 방식과 동일하게 6자리 코드 생성
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // (이메일 변경 요청 데이터 임시 저장: newEmail, code, expires)
-    // 실제 서비스에서는 Redis를 사용하지만, 예시에서는 Map 사용
+    // 임시 저장소에 새 이메일과 인증 코드 저장 (5분 유효)
     verificationCodes.set(`email_change_${userId}`, { 
         code: verificationCode, 
         newEmail: newEmail,
-        expires: Date.now() + 5 * 60 * 1000 // 5분 유효
+        expires: Date.now() + 5 * 60 * 1000 
     });
 
-    // 4. 새 이메일로 인증번호 발송
+    // 5. 새 이메일로 인증번호 이메일 발송 (find/pw의 이메일 발송 단계와 유사)
+    // 이메일 변경은 링크가 아닌 코드 입력이 목적이므로, sendVerificationEmail 사용이 적합합니다.
     await emailService.sendVerificationEmail(newEmail, verificationCode);
 
-    res.status(200).json({
+    const response = {
         message: '인증코드가 새 이메일로 발송되었습니다.',
-    });
+        // find/pw 로직을 참고하여 이메일 필드 추가 (새 이메일 주소)
+        email: newEmail, 
+    };
+
+    // 테스트 환경 노출 로직 (find/pw 로직 참고)
+    // isTestExposure는 userController 상단에 정의되어 있어야 합니다.
+    if (isTestExposure) {
+        response.verificationCode = verificationCode;
+    }
+
+    res.status(200).json(response);
 });
 
 /**
