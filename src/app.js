@@ -13,6 +13,9 @@ const { specs, swaggerUi } = require('./config/swagger');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 
+// 데이터베이스 동기화 코드 추가
+const { syncDatabase } = require('./models');
+
 const app = express();
 
 // 데이터베이스 연결
@@ -167,15 +170,43 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+// const server = app.listen(PORT, () => {
+//   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
   
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-    console.log(`❤️  Health Check: http://localhost:${PORT}/health`);
-    console.log(`🏠 Home: http://localhost:${PORT}/`);
+//   if (process.env.NODE_ENV !== 'production') {
+//     console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+//     console.log(`❤️  Health Check: http://localhost:${PORT}/health`);
+//     console.log(`🏠 Home: http://localhost:${PORT}/`);
+//   }
+// });
+
+let server;
+
+const startServer = async () => {
+  try {
+    // DB 스키마 먼저 동기화
+    await syncDatabase();
+    console.log('✅ Database synchronized successfully.');
+
+    // 동기화 성공 후 서버 시작
+    server = app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+        console.log(`❤️  Health Check: http://localhost:${PORT}/health`);
+        console.log(`🏠 Home: http://localhost:${PORT}/`);
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1); // 동기화 또는 서버 시작 실패 시 프로세스 종료
   }
-});
+};
+
+// 서버 시작 함수 호출
+startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
