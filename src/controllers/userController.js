@@ -340,7 +340,7 @@ const getProfile = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const updateProfile = asyncHandler(async (req, res) => {
-  const { name, phone, birthday, gender, currentPassword, newPassword } = req.body;
+  const { name, phone, birthday, gender} = req.body;
 
   const user = await User.findByPk(req.user.id);
 
@@ -554,14 +554,21 @@ const verifyEmailChange = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const changePassword = asyncHandler(async (req, res) => {
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
     const userId = req.user.id;
 
+    // 0. 새 비밀번호 재확인
+    if (newPassword !== confirmNewPassword) {
+        return res.status(400).json({
+            error: 'PasswordMismatch',
+            message: '새 비밀번호와 재확인 비밀번호가 일치하지 않습니다.',
+        });
+    }
     const user = await User.findByPk(userId, { attributes: ['id', 'password'] });
 
     // 1. 현재 비밀번호 일치 확인
     if (!(await user.comparePassword(currentPassword))) {
-        return res.status(401).json({
+        return res.status(409).json({
             error: 'PasswordMismatch',
             message: '현재 비밀번호가 일치하지 않습니다.',
         });
@@ -596,7 +603,7 @@ const verifyPasswordCheck = asyncHandler(async (req, res) => {
     // 1. 비밀번호 일치 확인
     if (!user || !(await user.comparePassword(password))) {
         // UI에 표시되는 "비밀번호가 일치하지 않습니다." 메시지에 대응
-        return res.status(401).json({ 
+        return res.status(409).json({ 
             error: 'PasswordMismatch',
             message: '입력하신 비밀번호가 일치하지 않습니다. 다시 한번 입력해주세요.',
         });
