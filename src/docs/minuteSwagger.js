@@ -67,6 +67,7 @@
  *         id:
  *           type: integer
  *           description: "회의록 고유 ID"
+ *           example: 7
  *         title:
  *           type: string
  *           description: "회의록 제목"
@@ -78,8 +79,13 @@
  *         meetingDate:
  *           type: string
  *           format: date-time
- *           description: "회의 날짜"
- *           example: "2025-11-20"
+ *           description: "회의 시작 날짜 및 시간"
+ *           example: "2025-11-20T14:00:00.000Z"
+ *         endTime:
+ *           type: string
+ *           format: time
+ *           description: "회의 종료 시간 (Meeting 정보)"
+ *           example: "15:00"
  *         location:
  *           type: string
  *           description: "회의 장소"
@@ -96,9 +102,11 @@
  *         meetingId:
  *           type: integer
  *           description: "회의 ID"
+ *           example: 7
  *         authorId:
  *           type: integer
  *           description: "작성자 ID"
+ *           example: 15
  *         author:
  *           type: object
  *           properties:
@@ -117,9 +125,11 @@
  *           type: string
  *           format: date-time
  *           description: "생성 시각"
+ *           example: "2025-11-18T03:35:40Z"
  *         updated_at:
  *           type: string
  *           description: "수정 시각"
+ *           example: "2025-11-18T03:36:31Z"
  *     MinuteUpdateRequest:
  *       type: object
  *       properties:
@@ -199,7 +209,8 @@
  *             id: 7
  *             title: "백엔드 스프린트 킥오프"
  *             attendees: "홍길동, 김철수"
- *             meetingDate: "2025-11-20T00:00:00Z"
+ *             meetingDate: "2025-11-20T14:00:00.000Z"
+ *             endTime: "15:00"
  *             location: "온라인 (Google Meet)"
  *             meetingLink: "https://meet.google.com/xyz-abc"
  *             content: "주요 이슈 및 일정 합의"
@@ -242,7 +253,8 @@
  *               id: 7
  *               title: "백엔드 스프린트 킥오프"
  *               attendees: "홍길동, 김철수"
- *               meetingDate: "2025-11-20T00:00:00Z"
+ *               meetingDate: "2025-11-20T14:00:00.000Z"
+ *               endTime: "15:00"
  *               location: "온라인 (Google Meet)"
  *               meetingLink: "https://meet.google.com/xyz-abc"
  *               content: "주요 이슈 및 일정 합의"
