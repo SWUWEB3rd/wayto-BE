@@ -170,14 +170,22 @@ const getTeamDetail = asyncHandler(async (req, res) => {
  */
 const updateTeamDetail = asyncHandler(async (req, res) => {
   const { teamId } = req.params;
-  const { description } = req.body;
+  const { description, teamtag } = req.body;
 
   const team = await Team.findByPk(teamId);
   if (!team) return res.status(404).json({ error: 'Team not found', message: '존재하지 않는 팀입니다.' });
 
+  if (team.managerEmail !== req.user.email) {
+    return res.status(403).json({ message: '팀장만 사용할 수 있는 기능입니다.' });
+  }
+
   if (description) {
     team.description = description;
     await team.save();
+  }
+
+  if (teamtag !== undefined) {
+    team.teamtag = teamtag;
   }
 
   res.json({ team });
@@ -210,8 +218,8 @@ const getTeamMinutes = asyncHandler(async (req, res) => {
       as: 'author',
       attributes: ['name', 'email']
     }],
-    order: [['createdAt', 'DESC']], // 최신순 정렬
-    attributes: ['id', 'title', 'createdAt', 'updatedAt']
+    order: [['created_at', 'DESC']], // 최신순 정렬
+    attributes: ['id', 'title', 'created_at', 'updated_at']
   });
 
   res.json({ minutes });

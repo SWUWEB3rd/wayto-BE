@@ -108,20 +108,22 @@ const loginSchema = Joi.object({
 const createTeamSchema = Joi.object({
   name: Joi.string()
     .min(2)
-    .max(50)
     .required()
     .messages({
       'string.min': '팀 이름은 최소 2자 이상이어야 합니다.',
-      'string.max': '팀 이름은 최대 50자까지 입력 가능합니다.',
       'any.required': '팀 이름은 필수 항목입니다.',
     }),
-  description: Joi.string().max(200).optional().messages({
-    'string.max': '팀 설명은 최대 200자까지 입력 가능합니다.',
+  description: Joi.string().max(250).optional().messages({
+    'string.max': '팀 설명은 최대 250자까지 입력 가능합니다.',
   }),
   // 팀태그 유효성 검사 추가
-  teamtag: Joi.string().max(50).optional().allow('').messages({
-    'string.max': '팀 태그는 최대 50자까지 입력 가능합니다.',
-  }),
+  teamtag: Joi.array()
+    .items(Joi.string().optional().allow(''))
+    .max(3)
+    .optional()
+    .messages({
+      'array.max': '팀 태그는 최대 3개까지 등록 가능합니다.',
+    }),
 });
 
 // 회의록 작성 검증 스키마
