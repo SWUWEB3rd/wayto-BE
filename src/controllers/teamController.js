@@ -218,8 +218,8 @@ const getTeamMinutes = asyncHandler(async (req, res) => {
       as: 'author',
       attributes: ['name', 'email']
     }],
-    order: [['createdAt', 'DESC']], // 최신순 정렬
-    attributes: ['id', 'title', 'createdAt', 'updatedAt']
+    order: [['created_at', 'DESC']], // 최신순 정렬
+    attributes: ['id', 'title', 'created_at', 'updated_at']
   });
 
   res.json({ minutes });
