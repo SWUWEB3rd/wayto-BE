@@ -468,16 +468,6 @@
  *                 enum: [male, female, other]
  *                 description: "성별"
  *                 example: "female"
- *               currentPassword:
- *                 type: string
- *                 description: "비밀번호 변경 시 필요"
- *                 example: "OldPass123!@#"
- *               newPassword:
- *                 type: string
- *                 minLength: 8
- *                 pattern: '^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'
- *                 description: "새로운 비밀번호"
- *                 example: "NewPass123!@#"
  *           example:
  *             name: "김철수"
  *             phone: "010-9876-5432"
@@ -826,7 +816,7 @@
  *                 message:
  *                   type: string
  *                   example: "비밀번호가 확인되었습니다."
- *       401:
+ *       409:
  *         description: 비밀번호 불일치
  *         content:
  *           application/json:
