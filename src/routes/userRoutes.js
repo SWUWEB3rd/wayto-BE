@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../middleware/authMiddleware');
-const { validate, signupSchema, loginSchema } = require('../middleware/validationMiddleware');
+const { validate, signupSchema, loginSchema, findIdSchema, findPwSchema } = require('../middleware/validationMiddleware');
 const userController = require('../controllers/userController');
 
 const router = express.Router();
@@ -17,8 +17,8 @@ router.post('/login', validate(loginSchema), userController.login);
 router.post('/logout', authenticate, userController.logout);
 
 // 아이디/비밀번호 찾기
-router.post('/find/id', userController.findUserId);
-router.post('/find/pw', userController.findUserPassword);
+router.post('/find/id', validate(findIdSchema), userController.findUserId);
+router.post('/find/pw', validate(findPwSchema), userController.findUserPassword);
 router.post('/idpw-sendnum', userController.sendIdPwVerification);
 router.get('/find/id/success', userController.findIdSuccess);
 

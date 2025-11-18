@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 
-const useEmailMock = process.env.USE_EMAIL_MOCK !== 'false';
+// 기본: 실발송. QA에서만 USE_EMAIL_MOCK=true 로 모의 발송을 켠다.
+const useEmailMock = process.env.USE_EMAIL_MOCK === 'true';
 
 // 메일 전송 설정
 const transporter = nodemailer.createTransport({
