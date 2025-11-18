@@ -4,6 +4,10 @@ const { User, Team, TeamMember } = require('../models');
 const { asyncHandler } = require('../middleware/errorMiddleware');
 const emailService = require('../services/emailService');
 
+const clientBaseUrl = process.env.CLIENT_URL || 'https://waayto.com';
+const defaultRedirectUrl = process.env.DEFAULT_REDIRECT_URL || 'https://waayto.com';
+const isTestExposure = process.env.EXPOSE_CODES_FOR_TEST === 'true';
+
 // JWT 토큰 생성
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -101,6 +105,7 @@ const login = asyncHandler(async (req, res) => {
       phone: user.phone,
     },
     token,
+    redirectUrl: defaultRedirectUrl,
   });
 });
 
@@ -113,6 +118,7 @@ const logout = asyncHandler(async (req, res) => {
   // 클라이언트에서 토큰 삭제 유도
   res.json({
     message: '로그아웃되었습니다.',
+    redirectUrl: `${defaultRedirectUrl}/login`,
   });
 });
 
@@ -145,9 +151,15 @@ const sendSignupVerification = asyncHandler(async (req, res) => {
   // 이메일 발송
   await emailService.sendVerificationEmail(email, verificationCode);
 
-  res.json({
+  const response = {
     message: '인증번호가 발송되었습니다.',
-  });
+  };
+
+  if (isTestExposure) {
+    response.verificationCode = verificationCode;
+  }
+
+  res.json(response);
 });
 
 /**
@@ -185,9 +197,16 @@ const verifyEmailCode = asyncHandler(async (req, res) => {
   // 인증 성공 시 삭제
   verificationCodes.delete(`${type}_${email}`);
 
-  res.json({
+  const response = {
     message: '인증이 완료되었습니다.',
-  });
+  };
+
+  if (isTestExposure) {
+    response.code = code;
+    response.type = type;
+  }
+
+  res.json(response);
 });
 
 /**
@@ -228,33 +247,20 @@ const checkPhoneDuplicate = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const findUserId = asyncHandler(async (req, res) => {
-  const { phone, verificationCode } = req.body;
+  const { name, email } = req.body;
 
-  // 인증번호 확인
-  const storedData = verificationCodes.get(`findid_${phone}`);
-  if (!storedData || storedData.code !== verificationCode) {
-    return res.status(400).json({
-      error: 'Invalid verification code',
-      message: '인증번호가 올바르지 않습니다.',
-    });
-  }
-
-  const user = await User.findOne({ where: { phone, isActive: true } });
+  const normalizedEmail = email.toLowerCase();
+  const user = await User.findOne({ where: { name, email: normalizedEmail, isActive: true } });
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
-      message: '해당 전화번호로 가입된 계정이 없습니다.',
+      message: '회원 정보를 찾을 수 없습니다.',
     });
   }
 
-  // 이메일 마스킹 처리
-  const email = user.email;
-  const [localPart, domain] = email.split('@');
-  const maskedEmail = localPart.slice(0, 3) + '*'.repeat(localPart.length - 3) + '@' + domain;
-
   res.json({
     message: '아이디를 찾았습니다.',
-    email: maskedEmail,
+    email: user.email,
   });
 });
 
@@ -264,13 +270,14 @@ const findUserId = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const findUserPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { email, name } = req.body;
 
-  const user = await User.findOne({ where: { email, isActive: true } });
+  const normalizedEmail = email.toLowerCase();
+  const user = await User.findOne({ where: { email: normalizedEmail, name, isActive: true } });
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
-      message: '해당 이메일로 가입된 계정이 없습니다.',
+      message: '회원 정보를 찾을 수 없습니다.',
     });
   }
 
@@ -279,12 +286,19 @@ const findUserPassword = asyncHandler(async (req, res) => {
   await user.save();
 
   // 재설정 링크 이메일 발송
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+  const resetUrl = `${clientBaseUrl}/reset-password?token=${resetToken}`;
   await emailService.sendPasswordResetEmail(email, resetUrl);
 
-  res.json({
+  const response = {
     message: '비밀번호 재설정 링크가 이메일로 발송되었습니다.',
-  });
+    email: user.email,
+  };
+
+  if (isTestExposure) {
+    response.resetUrl = resetUrl;
+  }
+
+  res.json(response);
 });
 
 /**
