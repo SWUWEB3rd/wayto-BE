@@ -247,10 +247,15 @@ const checkPhoneDuplicate = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const findUserId = asyncHandler(async (req, res) => {
-  const { name, email } = req.body;
+  const { name, phone } = req.body;
 
-  const normalizedEmail = email.toLowerCase();
-  const user = await User.findOne({ where: { name, email: normalizedEmail, isActive: true } });
+  const phoneDigits = phone.replace(/-/g, '');
+
+  let user = await User.findOne({ where: { name, phone, isActive: true } });
+  if (!user && phoneDigits !== phone) {
+    user = await User.findOne({ where: { name, phone: phoneDigits, isActive: true } });
+  }
+
   if (!user) {
     return res.status(404).json({
       error: 'User not found',
